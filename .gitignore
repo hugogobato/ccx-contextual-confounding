@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 figures/
 colab/shards/
-colab/downloads/
 manifests/
 *.tmp
 .ipynb_checkpoints/
