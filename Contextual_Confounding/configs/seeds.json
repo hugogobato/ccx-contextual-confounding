@@ -1,0 +1,177 @@
+{
+  "project": "CCX",
+  "note": "Master seed registry. Every experiment reads seeds from here; never reseed ad hoc.",
+  "phase1_uniform": {
+    "n_batches": 100,
+    "batch_size": 10000,
+    "seed_start": 0,
+    "seed_end": 99,
+    "description": "Dirichlet(1) draws per context over P(.|z) for z in {0,1}; batch b uses seed b."
+  },
+  "phase1_boundary": {
+    "n_points": 100000,
+    "seed": 20260824,
+    "description": "Near-facet sampling: feasible points interpolated toward facet-violating directions at log-spaced distances; plus exact polytope vertices.",
+    "facet_distance_grid": [
+      0.2,
+      0.1,
+      0.05,
+      0.02,
+      0.01,
+      0.005,
+      0.002,
+      0.001,
+      0.0005
+    ]
+  },
+  "phase1_inflation_subsample": {
+    "n_points": 20000,
+    "seed": 314159,
+    "description": "Subsample of uniform+boundary instances cross-checked against order-2 inflation LP (marginals + conditional-independence constraints)."
+  },
+  "atlas": {
+    "uniform_per_structure": 20000,
+    "near_facet_per_structure": 5000,
+    "seed_start": 777000
+  },
+  "micro_tests": {
+    "seed": 42
+  },
+  "phase2": {
+    "note": "Discrete-witness statistical engine. Null streams draw fresh IV-form SCMs per replication; alternative streams use the predeclared mixture-strength family. Bootstrap draw seeds derive deterministically as dataset_seed * 1000 + replicate_index (mod 2^31).",
+    "alphabet_cells": [
+      [
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        3
+      ],
+      [
+        2,
+        3,
+        3
+      ],
+      [
+        3,
+        3,
+        3
+      ],
+      [
+        2,
+        2,
+        5
+      ],
+      [
+        2,
+        2,
+        8
+      ],
+      [
+        3,
+        3,
+        5
+      ]
+    ],
+    "n_grid": [
+      250,
+      500,
+      1000,
+      2000,
+      4000,
+      8000
+    ],
+    "rho_grid": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9
+    ],
+    "null_seeds": {
+      "start": 400000,
+      "count": 200
+    },
+    "alt_mixture_seeds": {
+      "start": 500000,
+      "count": 200
+    },
+    "alt_mechanistic_seeds": {
+      "start": 600000,
+      "count": 200
+    },
+    "bootstrap_B": 199,
+    "bootstrap_seed_offset": 7919,
+    "contamination_eps": 0.05,
+    "contamination_seed_offset": 104729,
+    "subsampling_exponent": 0.7,
+    "split_fraction": 0.5,
+    "crossfit_folds": 2,
+    "alpha_binding": [
+      0.05,
+      0.1
+    ],
+    "alpha_grid": [
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15,
+      0.16,
+      0.17,
+      0.18,
+      0.19,
+      0.2
+    ],
+    "wp22_null_kinds": [
+      "chain",
+      "u_on_x",
+      "u_on_y",
+      "anchor_deterministic",
+      "anchor_interior"
+    ],
+    "note_kinds": "inert_u dropped: U drawn but mechanism-independent is distributionally identical to chain (same observable-law generator); redundant null.",
+    "boot_subset_nonbinary": {
+      "random": 24,
+      "anchor": 12
+    },
+    "boot_subset_binary": {
+      "random": 60,
+      "anchor": 30
+    },
+    "triage_note": "D2: adaptive bootstrap on clean arm only; contaminated arms evaluated against pooled clean CVs. Boot subsets per kind; pooled draws per (cell,n,stat,engine) >= 2400 everywhere.",
+    "B_cells": {
+      "default": 99,
+      "2-2-2": 199
+    },
+    "B_lp_cells": {
+      "default": 99,
+      "2-2-2": 199,
+      "2-2-3": 99,
+      "2-3-3": 99,
+      "3-3-3": 49,
+      "2-2-5": 49,
+      "2-2-8": 29,
+      "3-3-5": 29
+    },
+    "lp_time_cap_s": 600,
+    "wp32_seeds": 100
+  }
+}
