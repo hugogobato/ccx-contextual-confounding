@@ -1,11 +1,32 @@
 # ---- WP 3.2 null-calibration driver ----
+from continuous_witness import (k1_witness, k1_multiplier_bootstrap,
+                                k2_witness, k2_multiplier_bootstrap, hsic_stat, hsic_bootstrap)
+from phase3_dgps import sample_null, sample_confounded
+from calibration import critical_values
+
+def bootstrap_all(x, y, B, bmap, trims, seed):
+    _, k1d = k1_multiplier_bootstrap(
+        x, y, B=B, trim_grid=trims,
+        rng=np.random.default_rng(seed + 7000000), bmap=bmap)
+    _, k2d = k2_multiplier_bootstrap(
+        x, y, B=B, trim_grid=trims,
+        rng=np.random.default_rng(seed + 7100000), bmap=bmap)
+    hb = hsic_bootstrap(x[:HSIC_CAP], y[:HSIC_CAP], B=B,
+                        rng=np.random.default_rng(seed + 7200000))
+    return {"k1": k1d, "k2": k2d, "hsic": {0.0: hb}}
+
+
 RESUME = os.path.exists(OUT)
 done_seeds = set()
 if RESUME:
-    prev = pd.read_csv(OUT)
-    done_seeds = set((r["kind"], r["noise"], r["n"], r["d"], r["seed"])
-                     for _, r in prev.iterrows())
-    print("resume:", len(done_seeds), "dataset-records found")
+    try:
+        prev = pd.read_csv(OUT)
+        done_seeds = set((r["kind"], r["noise"], r["n"], r["d"], r["seed"])
+                         for _, r in prev.iterrows())
+        print("resume:", len(done_seeds), "dataset-records found")
+    except Exception:
+        print("resume: unreadable partial file, starting fresh")
+        RESUME = False
 
 rows_all = []
 for gi, g in enumerate(CONFIG["groups"]):
@@ -46,10 +67,12 @@ for gi, g in enumerate(CONFIG["groups"]):
                                               len(rows_all)), flush=True)
 pd.DataFrame(rows_all).to_csv(OUT, index=False)
 
-manifest = {"tag": TAG, "shard_id": SHARD_ID, "code_hash": CODE_HASH,
+manifest = {"tag": TAG, "shard_id": SHARD_ID, "git_sha": GIT_SHA,
             "groups": len(CONFIG["groups"]),
             "rows_written": len(rows_all)}
-mpath = "/content/ccx_%s_manifest_shard%02d.json" % (TAG, SHARD_ID)
+mpath = os.path.join(os.path.dirname(OUT),
+                     "ccx_%s_manifest_shard%02d.json"
+                     % (TAG, SHARD_ID))
 with open(mpath, "w") as fh:
     json.dump(manifest, fh, indent=2)
 print("MANIFEST:", json.dumps(manifest))

@@ -1,11 +1,20 @@
 # ---- WP 3.3 separation-study driver (statistics only; CVs applied locally)
+from continuous_witness import (k1_witness, k1_multiplier_bootstrap,
+                                k2_witness, k2_multiplier_bootstrap, hsic_stat, hsic_bootstrap)
+from phase3_dgps import sample_null, sample_confounded
+from calibration import critical_values
+
 RESUME = os.path.exists(OUT)
 done_keys = set()
 if RESUME:
-    prev = pd.read_csv(OUT)
-    done_keys = set((r["kind"], r["b"], r["n"], r["seed"])
-                    for _, r in prev.iterrows())
-    print("resume:", len(done_keys), "records found")
+    try:
+        prev = pd.read_csv(OUT)
+        done_keys = set((r["kind"], r["b"], r["n"], r["seed"])
+                        for _, r in prev.iterrows())
+        print("resume:", len(done_keys), "records found")
+    except Exception:
+        print("resume: unreadable partial file, starting fresh")
+        RESUME = False
 
 rows_all = []
 for gi, g in enumerate(CONFIG["groups"]):
@@ -29,10 +38,12 @@ for gi, g in enumerate(CONFIG["groups"]):
             print("  %d/%d" % (j + 1, len(todo)), flush=True)
 pd.DataFrame(rows_all).to_csv(OUT, index=False)
 
-manifest = {"tag": TAG, "shard_id": SHARD_ID, "code_hash": CODE_HASH,
+manifest = {"tag": TAG, "shard_id": SHARD_ID, "git_sha": GIT_SHA,
             "groups": len(CONFIG["groups"]),
             "rows_written": len(rows_all)}
-mpath = "/content/ccx_%s_manifest_shard%02d.json" % (TAG, SHARD_ID)
+mpath = os.path.join(os.path.dirname(OUT),
+                     "ccx_%s_manifest_shard%02d.json"
+                     % (TAG, SHARD_ID))
 with open(mpath, "w") as fh:
     json.dump(manifest, fh, indent=2)
 print("MANIFEST:", json.dumps(manifest))

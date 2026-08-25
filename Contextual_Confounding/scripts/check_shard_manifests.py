@@ -19,15 +19,16 @@ def main():
     for m in man:
         info = json.loads(m.read_text())
         tag, sid = info["tag"], info["shard_id"]
+        sha = info.get("git_sha", info.get("code_hash", "?"))[:12]
         csv = DL / ("ccx_%s_shard%02d.csv" % (tag, sid))
         if not csv.exists():
-            bad.append((tag, sid, "csv missing"))
+            bad.append((tag, sid, sha, "csv missing"))
             continue
         n = len(pd.read_csv(csv))
         if n == info["rows_written"]:
-            ok.append((tag, sid, n))
+            ok.append((tag, sid, sha, n))
         else:
-            bad.append((tag, sid,
+            bad.append((tag, sid, sha,
                         "rows %d != manifest %d" % (n,
                                                     info["rows_written"])))
     print("complete: %d | problems: %d" % (len(ok), len(bad)))
