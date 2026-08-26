@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results" / "phase3_continuous"
 RAW = ROOT / "results" / "raw" / "phase3"
 
-TRIM_PRIMARY = 0.01
+TRIM_PRIMARY = 0.05   # v3: primary policy (was 0.01 under the v2 design)
 
 
 def main():
@@ -41,9 +41,9 @@ def main():
     size[size["noise"] != "gauss"].to_csv(RES / "crackle_stress.csv",
                                           index=False)
 
-    # ---- critical-value transfer table for WP 3.3 (v2): each method is
-    # judged at its PRIMARY trimming policy (k1/k2: 0.01; hsic: 0.0)
-    PRIM_TRIM = {"k1": 0.01, "k2": 0.01, "hsic": 0.0}
+    # ---- critical-value transfer table for WP 3.3 (v3): each method is
+    # judged at its PRIMARY trimming policy (k1/k2: 0.05; hsic: 0.0)
+    PRIM_TRIM = {"k1": 0.05, "k2": 0.05, "hsic": 0.0}
     prim = df32[[r.trim == PRIM_TRIM.get(r.method, r.trim)
                  for r in df32.itertuples()]]
     cvt = (prim.groupby(["kind", "noise", "n", "d", "method"],

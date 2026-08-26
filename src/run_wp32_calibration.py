@@ -2,8 +2,9 @@
 
 Configs: n in {500,2000,8000} x d in {2,3,5} x noise {gauss,t3,lognorm}
 x null kind {null_gauss, null_nonparam}; seeds 200 (pilot: 20).
-Methods: k1, k2, hsic. Calibration: multiplier/wild bootstrap B=199
-(pilot 49) with trimming policies {0, 0.01, 0.05} (predeclared grid).
+Methods: k1, k2, hsic. Calibration (v3): per-context linear detrend +
+winsorization (primary trim 0.05) + affine standardization + context-
+label permutation B=199; HSIC baseline uses pairs-bootstrap CVs.
 
 Rows -> results/raw/phase3/wp32_*.csv; aggregated by aggregate_phase3.py
 into null_calibration.csv and crackle_stress.csv.
@@ -23,9 +24,8 @@ os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("MKL_NUM_THREADS", "1")
 
-from continuous_witness import (k1_witness, k1_multiplier_bootstrap,  # noqa: E402
-                                k2_witness, k2_multiplier_bootstrap,
-                                hsic_resid_stat, hsic_resid_permutation)
+from continuous_witness import (k1_k2_perm_calibration,   # noqa: E402
+                                hsic_resid_stat, hsic_pairs_bootstrap)
 from calibration import critical_values  # noqa: E402
 import phase3_dgps as d3  # noqa: E402
 
@@ -33,8 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "results" / "raw" / "phase3"
 
 ALPHA_GRID = [round(0.01 * a, 2) for a in range(1, 21)]
-TRIMS = (0.0, 0.01, 0.05)
-HSIC_CAP = 800           # obs and permutations at the SAME capped n (v2)
+HSIC_CAP = 800           # pairs-bootstrap resample cap
 
 
 def process_group(g):
@@ -45,56 +44,38 @@ def process_group(g):
         rng = np.random.default_rng(seed)
         x, y, _W = d3.sample_null(rng, n, d, noise=noise, kind=kind)
 
-        # v2 fix (D9): stat_obs computed PER TRIM so each row pairs the
-        # trimmed witness with its own bootstrap draws (v1 shared one
-        # untrimmed obs across trims -> heavy-tail sizes ~1.0).
-        obs = {}
-        for tq in TRIMS:
-            obs[("k1", tq)] = k1_witness(x, y, trim_q=tq)
-            obs[("k2", tq)] = k2_witness(x, y, trim_q=tq)
-
-        boot = {}
         t0 = time.perf_counter()
-        # D8(rev): primary trim (0.01) at full B; sensitivity trims at
-        # reduced depth; noise-stress kinds run the PRIMARY policy only
+        # v3: primary trim 0.05 at full B; sensitivity trims on
+        # gauss-noise nulls only, at reduced draw budgets.
         if noise == "gauss":
-            bmap = {tq: (B if tq == 0.01 else min(B, 49)) for tq in TRIMS}
-            trims = TRIMS
+            trims = (0.0, 0.01, 0.05)
+            bmap = {0.0: min(B, 49), 0.01: min(B, 49), 0.05: B}
         else:
+            trims = (0.05,)
             bmap = None
-            trims = (0.01,)
-        _, k1d = k1_multiplier_bootstrap(x, y, B=B, trim_grid=trims,
-                                         rng=np.random.default_rng(
-                                             seed + 7000000),
-                                         bmap=bmap)
-        boot["k1"] = k1d
-        _, k2d = k2_multiplier_bootstrap(x, y, B=B, trim_grid=trims,
-                                         rng=np.random.default_rng(
-                                             seed + 7100000),
-                                         bmap=bmap)
-        boot["k2"] = k2d
+        obs, dr = k1_k2_perm_calibration(
+            x, y, B=B, trims=trims, bmap=bmap,
+            rng=np.random.default_rng(seed + 7000000))
         xc, yc = x[:HSIC_CAP], y[:HSIC_CAP]
-        obs_hsic = hsic_resid_stat(xc, yc)
-        hb = hsic_resid_permutation(xc, yc, B=B,
-                                    rng=np.random.default_rng(seed + 7200000))
-        boot["hsic"] = {0.0: hb}
+        obs_hsic = abs(hsic_resid_stat(xc, yc))
+        hb = hsic_pairs_bootstrap(xc, yc, B=B,
+                                  rng=np.random.default_rng(
+                                      seed + 7200000), cap=HSIC_CAP)
         dt_boot = time.perf_counter() - t0
 
         base = {"n": n, "d": d, "noise": noise, "kind": kind, "seed": seed}
         for meth in ("k1", "k2"):
             for tq in trims:
-                if tq not in boot[meth]:
-                    continue
-                cvs = critical_values(boot[meth][tq], ALPHA_GRID)
+                cvs = critical_values(dr[tq][meth], ALPHA_GRID)
                 row = dict(base, method=meth, trim=tq,
-                           B=len(boot[meth][tq]),
-                           stat_obs=obs[(meth, tq)], dt_boot_s=dt_boot)
+                           B=len(dr[tq][meth]),
+                           stat_obs=obs[tq][meth], dt_boot_s=dt_boot)
                 for a in ALPHA_GRID:
                     row[f"cv_{a:.2f}"] = cvs[a]
                 out.append(row)
-        cvs = critical_values(boot["hsic"][0.0], ALPHA_GRID)
+        cvs = critical_values(hb, ALPHA_GRID)
         row = dict(base, method="hsic", trim=0.0,
-                   B=len(boot["hsic"][0.0]), stat_obs=obs_hsic,
+                   B=len(hb), stat_obs=obs_hsic,
                    dt_boot_s=dt_boot)
         for a in ALPHA_GRID:
             row[f"cv_{a:.2f}"] = cvs[a]

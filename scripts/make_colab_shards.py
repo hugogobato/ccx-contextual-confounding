@@ -203,21 +203,6 @@ def main():
                     "range(1, 21)]\n"
                     "HSIC_CAP = 800\n")
 
-    def bootstrap_fn():
-        return (
-            "\ndef bootstrap_all(x, y, B, bmap, trims, seed):\n"
-            "    _, k1d = k1_multiplier_bootstrap(\n"
-            "        x, y, B=B, trim_grid=trims,\n"
-            "        rng=np.random.default_rng(seed + 7000000), bmap=bmap)\n"
-            "    _, k2d = k2_multiplier_bootstrap(\n"
-            "        x, y, B=B, trim_grid=trims,\n"
-            "        rng=np.random.default_rng(seed + 7100000), bmap=bmap)\n"
-            "    xc, yc = x[:HSIC_CAP], y[:HSIC_CAP]\n"
-            "    hb = hsic_resid_permutation(xc, yc, B=B,\n"
-            "                                rng=np.random.default_rng("
-            "seed + 7200000))\n"
-            "    return {'k1': k1d, 'k2': k2d, 'hsic': {0.0: hb}}\n")
-
     # ---------------- WP 3.2: 54 groups -> 18 shards x 3 groups
     groups32 = wp32_groups(cfg32, pilot=False)
     n_shard = 18
@@ -230,8 +215,7 @@ def main():
             g.pop("cfg", None)
         config = {"_shard_id": s, "groups": chunk}
         setup = (setup_common.replace("__SOURCE_STAMP__",
-                                      setup_common + drv32)
-                 + bootstrap_fn())
+                                      setup_common + drv32))
         build("wp32", config, setup, drv32,
               SHARD_DIR / f"ccx_wp32_shard{s:02d}.ipynb")
 

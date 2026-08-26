@@ -1,4 +1,5 @@
-# ---- WP 3.2 null-calibration driver (v2: per-trim obs + residual-HSIC) ----
+# ---- WP 3.2 null-calibration driver (v3: linear detrend + context
+# standardization + label-permutation calibration; HSIC pairs-bootstrap).
 RESUME = os.path.exists(OUT)
 done_seeds = set()
 if RESUME:
@@ -10,13 +11,14 @@ if RESUME:
 rows_all = []
 for gi, g in enumerate(CONFIG["groups"]):
     n, d, noise, kind, B = g["n"], g["d"], g["noise"], g["kind"], g["B"]
+    # v3 trimming policy: primary 0.05 at full B; sensitivity trims on
+    # gauss-noise nulls only, at reduced draw budgets.
     if noise == "gauss":
-        bmap = dict((tq, (B if tq == 0.01 else min(B, 49)))
-                    for tq in TRIMS)
-        trims = TRIMS
+        trims = (0.0, 0.01, 0.05)
+        bmap = {0.0: min(B, 49), 0.01: min(B, 49), 0.05: B}
     else:
+        trims = (0.05,)
         bmap = None
-        trims = (0.01,)
     todo = [s for s in g["seeds"]
             if (kind, noise, n, d, s) not in done_seeds]
     print("[group %d/%d] n=%d d=%d %s %s: %d seeds"
@@ -25,28 +27,28 @@ for gi, g in enumerate(CONFIG["groups"]):
     for j, seed in enumerate(todo):
         rng = np.random.default_rng(seed)
         x, y, _W = sample_null(rng, n, d, noise=noise, kind=kind)
-        obs = {("k1", tq): k1_witness(x, y, trim_q=tq) for tq in trims}
-        obs.update({("k2", tq): k2_witness(x, y, trim_q=tq)
-                    for tq in trims})
+        obs, dr = k1_k2_perm_calibration(
+            x, y, B=B, trims=trims, bmap=bmap,
+            rng=np.random.default_rng(seed + 7000000))
         xc, yc = x[:HSIC_CAP], y[:HSIC_CAP]
-        obs_hsic = hsic_resid_stat(xc, yc)
-        boot = bootstrap_all(x, y, B, bmap, trims, seed)
+        obs_hsic = abs(hsic_resid_stat(xc, yc))
+        hb = hsic_pairs_bootstrap(xc, yc, B=B,
+                                  rng=np.random.default_rng(
+                                      seed + 7200000), cap=HSIC_CAP)
         for meth in ("k1", "k2"):
             for tq in trims:
-                if tq not in boot[meth]:
-                    continue
-                cvs = critical_values(boot[meth][tq], ALPHA_GRID)
+                cvs = critical_values(dr[tq][meth], ALPHA_GRID)
                 r = {"n": n, "d": d, "noise": noise, "kind": kind,
                      "seed": seed, "method": meth, "trim": tq,
-                     "B": len(boot[meth][tq]),
-                     "stat_obs": obs[(meth, tq)]}
+                     "B": len(dr[tq][meth]),
+                     "stat_obs": obs[tq][meth]}
                 for a in ALPHA_GRID:
                     r["cv_%.2f" % a] = cvs[a]
                 rows_all.append(r)
-        cvs = critical_values(boot["hsic"][0.0], ALPHA_GRID)
+        cvs = critical_values(hb, ALPHA_GRID)
         r = {"n": n, "d": d, "noise": noise, "kind": kind,
              "seed": seed, "method": "hsic", "trim": 0.0,
-             "B": len(boot["hsic"][0.0]), "stat_obs": obs_hsic}
+             "B": len(hb), "stat_obs": obs_hsic}
         for a in ALPHA_GRID:
             r["cv_%.2f" % a] = cvs[a]
         rows_all.append(r)
@@ -59,7 +61,8 @@ pd.DataFrame(rows_all).to_csv(OUT, index=False)
 manifest = {"tag": TAG, "shard_id": SHARD_ID, "code_hash": CODE_HASH,
             "groups": len(CONFIG["groups"]),
             "rows_written": len(rows_all)}
-mpath = "/content/ccx_%s_manifest_shard%02d.json" % (TAG, SHARD_ID)
+mpath = os.path.join(os.path.dirname(OUT),
+                     "ccx_%s_manifest_shard%02d.json" % (TAG, SHARD_ID))
 with open(mpath, "w") as fh:
     json.dump(manifest, fh, indent=2)
 print("MANIFEST:", json.dumps(manifest))

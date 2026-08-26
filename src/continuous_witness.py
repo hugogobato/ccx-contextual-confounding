@@ -381,6 +381,160 @@ def hsic_bootstrap(x, y, B=199, rng=None):
     return draws
 
 
+# ------------------------------------------------- v3 witness pipeline (D12)
+#
+# Post-hoc diagnosis of the Colab v2 calibration failure (heavy-tail sizes
+# ~1.0): (a) Rademacher sign-flips distort the marginal law of ASYMMETRIC
+# residuals (every draw is sampled from a pointwise-symmetrized law), so the
+# wild bootstrap targets the wrong functional; (b) constant-per-context
+# detrending leaves strata-width-induced shape artifacts that break any
+# label-exchangeability argument. v3 therefore:
+#   1. removes a per-context LINEAR trend (not a constant),
+#   2. winsorizes residuals within context (primary trim 0.05, predeclared
+#      grid {0, 0.01, 0.05} retained with 0.05 promoted to primary),
+#   3. affinely standardizes each context (center/scale by residual moments,
+#      as declared in the original docstring design),
+#   4. calibrates by CONTEXT-LABEL PERMUTATION of the pooled standardized
+#      residuals: an exact-multiset randomization null with no law
+#      distortion (valid under skewness/infinite moments), reusing the
+#      observed model's bandwidth (the pooled multiset is invariant).
+
+
+def _ctx_linear_trend(x, y, ctx, Kr):
+    """Per-context linear trend fits; returns list of residual vectors."""
+    out = []
+    for c in range(Kr):
+        m = ctx == c
+        xs, ys = x[m], y[m]
+        if len(xs) >= 10 and np.std(xs) > 1e-12:
+            A = np.vstack([xs - xs.mean(), np.ones(len(xs))]).T
+            coef, *_ = np.linalg.lstsq(A, ys, rcond=None)
+            out.append(ys - A @ coef)
+        else:
+            out.append(ys - ys.mean())
+    return out
+
+
+def _standardize_ctx(rs):
+    return [(r - r.mean()) / max(r.std(), 1e-9) for r in rs]
+
+
+def _pooled_normal_score(zz):
+    """Global rank->Phi^{-1} transform of the pooled standardized
+    residuals (one fixed monotone bijection of the observed multiset).
+    Permuted-label draws inherit the exact same value multiset, so the
+    permutation null remains exact; the transform bounds the influence of
+    extreme order statistics on transport/kernel functionals."""
+    pool = np.concatenate(zz)
+    rnk = np.empty(len(pool))
+    rnk[np.argsort(pool, kind="stable")] = np.arange(len(pool))
+    from scipy.special import ndtri
+    u = (rnk + 0.5) / len(pool)
+    sc = ndtri(u)
+    out, ofs = [], 0
+    for z in zz:
+        out.append(sc[ofs:ofs + len(z)])
+        ofs += len(z)
+    return out
+
+
+def _wz_std_resids(x, y, K=None, trim_q=0.05, detrend="linear",
+                   score=False):
+    """Full v3 residual preprocessing: trend removal, winsorization,
+    per-context standardization, optional pooled normal scoring.
+    Returns (list_of_vectors, lens, pool)."""
+    ctx = make_contexts(x, K=K)
+    Kr = len(np.unique(ctx))
+    base = (_ctx_linear_trend(x, y, ctx, Kr) if detrend == "linear"
+            else context_residuals(x, y, ctx, Kr, trim_q=0.0))
+    rs = []
+    for r in base:
+        if trim_q > 0 and len(r) >= 10:
+            lo, hi = np.quantile(r, [trim_q, 1 - trim_q])
+            r = np.clip(r, lo, hi)
+        rs.append(r)
+    zz = _standardize_ctx(rs)
+    if score:
+        zz = _pooled_normal_score(zz)
+    return zz, [len(z) for z in zz], np.concatenate(zz)
+
+
+def k1_v3_stat(x, y, trim_q=0.05, K=None, score=False):
+    """Point statistic T_K1 under the v3 pipeline (label-swap kernel QP)."""
+    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score)
+    return float(K1Witness(zz).solve())
+
+
+def k2_v3_stat(x, y, trim_q=0.05, K=None, score=False):
+    """Point statistic T_K2 under the v3 pipeline (excess transport)."""
+    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score)
+    return k2_from_resids(zz)
+
+
+def _perm_pool_draws(zz, lens, pool, bw, B, rng, smo_rounds=80):
+    draws = np.empty(B)
+    idx_split = np.cumsum(lens)[:-1]
+    for b in range(B):
+        parts = np.split(rng.permutation(pool), idx_split)
+        m = K1Witness(parts, bw=bw)
+        draws[b] = m.solve(smo_rounds=smo_rounds)
+    return draws
+
+
+def k1_k2_perm_calibration(x, y, B=199, trims=(0.05,), K=None, rng=None,
+                           bmap=None, score=False):
+    """Joint label-permutation calibration for T_K1/T_K2.
+
+    Returns (obs_dict, draws_dict) where keys are trimming levels and
+    entries are dicts {'k1': stat, 'k2': stat} / {'k1': arr, 'k2': arr}.
+    bmap: optional {trim_q: B_eff} per-trim draw budgets."""
+    rng = rng or np.random.default_rng(20260901)
+    ctx = make_contexts(x, K=K)
+    Kr = len(np.unique(ctx))
+    out_obs, out_dr = {}, {}
+    for tq in trims:
+        zz, lens, pool = _wz_std_resids(x, y, K=K, trim_q=tq, score=score)
+        mo = K1Witness(zz)
+        bw = mo.bw                      # pooled law invariant under swap
+        o1 = float(mo.solve())
+        o2 = k2_from_resids(zz)
+        Beff = B if bmap is None else int(bmap.get(tq, B))
+        d1 = _perm_pool_draws(zz, lens, pool, bw, Beff, rng)
+        d2 = np.empty(Beff)
+        prng = np.random.default_rng(int(rng.integers(0, 2**62)))
+        idx_split = np.cumsum(lens)[:-1]
+        for b in range(Beff):
+            parts = np.split(prng.permutation(pool), idx_split)
+            d2[b] = k2_from_resids(parts)
+        out_obs[tq] = {"k1": o1, "k2": float(o2)}
+        out_dr[tq] = {"k1": d1, "k2": d2}
+    return out_obs, out_dr
+
+
+def hsic_pairs_bootstrap(x, y, B=199, rng=None, cap=800):
+    """Pairs-bootstrap null draws for |residual-HSIC| (v3 baseline).
+
+    Resamples (x, y) pairs jointly and recomputes the whole NW-residual
+    HSIC pipeline; valid under H0 because the fitting artifact is carried
+    into every replicate. Returns abs-valued draws; pair the observed
+    value through abs(hsic_resid_stat(...))."""
+    rng = rng or np.random.default_rng(20260902)
+    x = np.asarray(x, float)[:cap]
+    y = np.asarray(y, float)[:cap]
+    n = len(x)
+    draws = np.empty(B)
+    for b in range(B):
+        ii = rng.integers(0, n, n)
+        xb, yb = x[ii], y[ii]
+        rb = _nw_residuals(xb, yb)
+        sx = np.median(np.abs(xb - np.median(xb))) or 1.0
+        sy = np.median(np.abs(rb - np.median(rb))) or 1.0
+        draws[b] = abs(hsic_stat(xb, rb,
+                                 bw=(max(sx * 1.06, 1e-6),
+                                     max(sy * 1.06, 1e-6))))
+    return draws
+
+
 # ---------------------------------------------- residual-CIT baseline (v2)
 
 def _nw_residuals(x, y):
