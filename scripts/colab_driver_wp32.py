@@ -1,4 +1,4 @@
-# ---- WP 3.2 null-calibration driver ----
+# ---- WP 3.2 null-calibration driver (v2: per-trim obs + residual-HSIC) ----
 RESUME = os.path.exists(OUT)
 done_seeds = set()
 if RESUME:
@@ -25,21 +25,31 @@ for gi, g in enumerate(CONFIG["groups"]):
     for j, seed in enumerate(todo):
         rng = np.random.default_rng(seed)
         x, y, _W = sample_null(rng, n, d, noise=noise, kind=kind)
-        obs = {"k1": k1_witness(x, y),
-               "k2": k2_witness(x, y),
-               "hsic": hsic_stat(x[:HSIC_CAP], y[:HSIC_CAP])}
+        obs = {("k1", tq): k1_witness(x, y, trim_q=tq) for tq in trims}
+        obs.update({("k2", tq): k2_witness(x, y, trim_q=tq)
+                    for tq in trims})
+        xc, yc = x[:HSIC_CAP], y[:HSIC_CAP]
+        obs_hsic = hsic_resid_stat(xc, yc)
         boot = bootstrap_all(x, y, B, bmap, trims, seed)
-        for meth in ("k1", "k2", "hsic"):
-            for tq in (trims if meth != "hsic" else (0.0,)):
+        for meth in ("k1", "k2"):
+            for tq in trims:
                 if tq not in boot[meth]:
                     continue
                 cvs = critical_values(boot[meth][tq], ALPHA_GRID)
                 r = {"n": n, "d": d, "noise": noise, "kind": kind,
                      "seed": seed, "method": meth, "trim": tq,
-                     "B": len(boot[meth][tq]), "stat_obs": obs[meth]}
+                     "B": len(boot[meth][tq]),
+                     "stat_obs": obs[(meth, tq)]}
                 for a in ALPHA_GRID:
                     r["cv_%.2f" % a] = cvs[a]
                 rows_all.append(r)
+        cvs = critical_values(boot["hsic"][0.0], ALPHA_GRID)
+        r = {"n": n, "d": d, "noise": noise, "kind": kind,
+             "seed": seed, "method": "hsic", "trim": 0.0,
+             "B": len(boot["hsic"][0.0]), "stat_obs": obs_hsic}
+        for a in ALPHA_GRID:
+            r["cv_%.2f" % a] = cvs[a]
+        rows_all.append(r)
         if (j + 1) % 10 == 0 or (j + 1) == len(todo):
             pd.DataFrame(rows_all).to_csv(OUT, index=False)
             print("  %d/%d seeds, rows=%d" % (j + 1, len(todo),

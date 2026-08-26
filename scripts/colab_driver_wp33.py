@@ -19,7 +19,7 @@ for gi, g in enumerate(CONFIG["groups"]):
         x, y, _W = sample_confounded(rng, n, d, b, noise=noise, kind=kind)
         obs = {"k1": k1_witness(x, y, trim_q=0.01),
                "k2": k2_witness(x, y, trim_q=0.01),
-               "hsic": hsic_stat(x[:HSIC_CAP], y[:HSIC_CAP])}
+               "hsic": hsic_resid_stat(x[:HSIC_CAP], y[:HSIC_CAP])}
         for meth, sv in obs.items():
             rows_all.append({"n": n, "d": d, "noise": noise, "kind": kind,
                              "b": b, "seed": seed, "method": meth,

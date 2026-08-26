@@ -41,8 +41,11 @@ def main():
     size[size["noise"] != "gauss"].to_csv(RES / "crackle_stress.csv",
                                           index=False)
 
-    # ---- critical-value transfer table for WP 3.3
-    prim = df32[df32["trim"] == TRIM_PRIMARY]
+    # ---- critical-value transfer table for WP 3.3 (v2): each method is
+    # judged at its PRIMARY trimming policy (k1/k2: 0.01; hsic: 0.0)
+    PRIM_TRIM = {"k1": 0.01, "k2": 0.01, "hsic": 0.0}
+    prim = df32[[r.trim == PRIM_TRIM.get(r.method, r.trim)
+                 for r in df32.itertuples()]]
     cvt = (prim.groupby(["kind", "noise", "n", "d", "method"],
                         as_index=False)
            .agg(cv_05=("cv_0.05", "mean")))
@@ -81,11 +84,72 @@ def main():
 
     sz_lu = {(r.noise, r.n, r.d, r.method): r.size_05
              for r in size.itertuples()
-             if r.trim == TRIM_PRIMARY}
+             if r.trim == PRIM_TRIM.get(r.method, TRIM_PRIMARY)}
     sep["null_size"] = [sz_lu.get((r.noise, r.n, r.d, r.method), np.nan)
                         for r in sep.itertuples()]
     sep["advantage"] = sep["power"] - sep["null_size"]
     sep.to_csv(RES / "separation_study.csv", index=False)
+
+    # ---- Gate C evaluation (v2): predeclared rule verbatim, per-panel
+    # monotonicity (v1 mixed (n,d) panels inside one sort-by-b).
+    # Rule: witness power >= size + 0.25 at b >= 0.4, n <= 5000, d <= 3,
+    # size <= 0.06 at alpha 0.05, in >= 2 of 3 favorable-regime cells
+    # where ALL baselines remain <= size + 0.10; power monotone in b.
+    szmap = {(r.kind, r.noise, r.n, r.d, r.method): r.size_05
+             for r in size.itertuples()
+             if r.trim == PRIM_TRIM.get(r.method, TRIM_PRIMARY)}
+    rows_c = []
+    for meth in ("k1", "k2"):
+        for kd in ("conf_lin", "conf_nonlin"):
+            null_kind = ("null_gauss" if kd == "conf_lin"
+                         else "null_nonparam")
+            for nz in ("gauss", "t3", "lognorm"):
+                sub = sep[(sep["method"] == meth) & (sep["kind"] == kd) &
+                          (sep["noise"] == nz) & (sep["b"] >= 0.4) &
+                          (sep["n"] <= 5000) & (sep["d"] <= 3)]
+                if not len(sub):
+                    continue
+                # favorable-regime cells = distinct (n, d) panels
+                panels = []
+                for (nv, dv), g in sub.groupby(["n", "d"]):
+                    g = g.sort_values("b")
+                    mono = bool(np.all(np.diff(g["power"].values) >= -0.08))
+                    base_ok = True
+                    hsic_rows = sep[(sep["method"] == "hsic") &
+                                    (sep["kind"] == kd) &
+                                    (sep["noise"] == nz) &
+                                    (sep["n"] == nv) & (sep["d"] == dv) &
+                                    (sep["b"] >= 0.4)]
+                    for r in hsic_rows.itertuples():
+                        s_h = szmap.get((null_kind, nz, nv, dv, "hsic"),
+                                        np.nan)
+                        if not (np.isfinite(s_h) and
+                                r.power <= s_h + 0.10):
+                            base_ok = False
+                            break
+                    adv_ok = int(np.sum((g["advantage"] >= 0.25) &
+                                        (g["null_size"] <= 0.06)))
+                    panels.append({"n": nv, "d": dv,
+                                   "size_worst":
+                                       float(g["null_size"].max()),
+                                   "adv_cells": adv_ok,
+                                   "baseline_ok": bool(base_ok),
+                                   "monotone_b": mono})
+                df_p = pd.DataFrame(panels)
+                elig = df_p[(df_p["baseline_ok"]) & (df_p["monotone_b"])]
+                n_pass = int(((elig["adv_cells"] > 0)).sum())
+                rows_c.append({
+                    "method": meth, "kind": kd, "noise": nz,
+                    "panels_total": int(len(df_p)),
+                    "panels_eligible": int(len(elig)),
+                    "panels_with_adv_ge_025": n_pass,
+                    "worst_size_favorable":
+                        float(df_p["size_worst"].max()),
+                    "all_monotone": bool(df_p["monotone_b"].all()),
+                    "pass_rule_met": bool(n_pass >= 2),
+                })
+    gatec = pd.DataFrame(rows_c)
+    gatec.to_csv(RES / "gateC_evaluation.csv", index=False)
 
     summary = []
     pw = sep[sep["method"].isin(["k1", "k2"])]
@@ -96,19 +160,25 @@ def main():
     for (meth, kd, nz), g in pw.groupby(["method", "kind", "noise"]):
         ok_base = g[g["power_hsic"] <= 0.15]
         passed = ok_base[ok_base["advantage"] >= 0.25]
-        gg = g.sort_values("b")
-        mono_ok = bool(np.all(np.diff(gg["power"].values) >= -0.08))
+        mono_panels = True
+        for (nv, dv), gg in g.groupby(["n", "d"]):
+            gg = gg.sort_values("b")
+            if not np.all(np.diff(gg["power"].values) >= -0.08):
+                mono_panels = False
+                break
         summary.append({
             "method": meth, "kind": kd, "noise": nz,
             "favorable_cells_total": int(len(ok_base)),
             "cells_with_adv_ge_025": int(len(passed)),
-            "monotone_in_b": mono_ok,
+            "monotone_in_b_per_panel": mono_panels,
             "max_power": float(g["power"].max()),
-            "pass_rule_met": bool(len(passed) >= 2 and mono_ok),
+            "pass_rule_met_legacy": bool(len(passed) >= 2 and mono_panels),
         })
     summ = pd.DataFrame(summary)
     summ.to_csv(RES / "pass_rule_summary.csv", index=False)
     print(summ.to_string(index=False))
+    print("\n=== Gate C predeclared-rule evaluation ===")
+    print(gatec.to_string(index=False))
 
 
 if __name__ == "__main__":

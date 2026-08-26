@@ -98,6 +98,19 @@ def _gram(points, bw):
 
 # ------------------------------------------------------------------ K1 core
 
+_GRID_CACHE = {}
+
+
+def _component_grid(G):
+    """Standard-normal quantile grid (deterministic rng(7)); cached per G
+    since it is identical across every construction."""
+    if G not in _GRID_CACHE:
+        _GRID_CACHE[G] = np.quantile(
+            np.random.default_rng(7).normal(size=200000),
+            (np.arange(G) + 0.5) / G)
+    return _GRID_CACHE[G]
+
+
 class K1Witness:
     """Kernelized forcing-divergence witness over a shared coupling grid."""
 
@@ -108,8 +121,7 @@ class K1Witness:
         self.bw = bw if bw is not None else _median_bandwidth(resids)
         self.m_cap = m_cap
         # component grid: standard normal quantiles
-        self.t = np.quantile(np.random.default_rng(7).normal(size=200000),
-                             (np.arange(G) + 0.5) / G)
+        self.t = _component_grid(G)
         # per-context mean embeddings against grid components and self-Gram
         self.b = []      # b_c[j] = <mu_c, nu_j>
         self.A = []      # A_c[j,j'] = <nu_j, nu_j'> (same for all c)
@@ -346,7 +358,11 @@ def hsic_stat(x, y, bw=None):
 
 def hsic_bootstrap(x, y, B=199, rng=None):
     """Multiplier bootstrap for HSIC (Rademacher weights on feature
-    products' low-rank approximation via direct reweighting)."""
+    products' low-rank approximation via direct reweighting).
+    DEPRECATED (v1): the quadratic-form draw xi' P xi is not a valid null
+    distribution for the centered HSIC statistic (empirical size 1.0 under
+    all Phase-3 nulls); kept only for provenance. Use hsic_resid_stat +
+    hsic_resid_permutation instead."""
     rng = rng or np.random.default_rng(20260829)
     x = np.asarray(x, float)
     y = np.asarray(y, float)
@@ -362,4 +378,54 @@ def hsic_bootstrap(x, y, B=199, rng=None):
     for b in range(B):
         xi = rng.choice([-1.0, 1.0], size=n)
         draws[b] = float(xi @ prodc @ xi) / n ** 2
+    return draws
+
+
+# ---------------------------------------------- residual-CIT baseline (v2)
+
+def _nw_residuals(x, y):
+    """Nadaraya-Watson residuals of y on x (Gaussian kernel, Silverman bw)."""
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    sx = np.median(np.abs(x - np.median(x))) or 1.0
+    bw = max(sx * 1.06 * len(x) ** (-0.2), 1e-6)
+    W = np.exp(-0.5 * ((x[:, None] - x[None, :]) / bw) ** 2)
+    yhat = (W @ y) / np.maximum(W.sum(axis=1), 1e-12)
+    return y - yhat
+
+
+def hsic_resid_stat(x, y, bw=None):
+    """Residual conditional-independence baseline (KCI-flavored): HSIC(X,
+    Y - g_hat(X)) with nonparametric g_hat. Tests noise exogeneity rather
+    than raw X-independence (the latter is false under both null and
+    alternative in the Phase-3 DGPs since X -> Y directly)."""
+    r = _nw_residuals(x, y)
+    return hsic_stat(x, r, bw=bw)
+
+
+def hsic_resid_permutation(x, y, B=199, rng=None):
+    """Permutation null draws for hsic_resid_stat: permute the fitted
+    residuals (exchangeable under H0 given the mean fit). obs and draws
+    must be computed at the SAME sample size (driver caps both).
+    Kx is computed once and reused across permutations."""
+    rng = rng or np.random.default_rng(20260830)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    r = _nw_residuals(x, y)
+    n = len(x)
+    sx = np.median(np.abs(x - np.median(x))) or 1.0
+    sr = np.median(np.abs(r - np.median(r))) or 1.0
+    bw_x = max(sx * 1.06, 1e-6)
+    bw_r = max(sr * 1.06, 1e-6)
+
+    def center(K):
+        return K - K.mean(axis=0) - K.mean(axis=1) + K.mean()
+
+    Kxc = center(np.exp(-0.5 * ((x[:, None] - x[None, :]) / bw_x) ** 2))
+    draws = np.empty(B)
+    for b in range(B):
+        rp = rng.permutation(r)
+        Kyr = center(np.exp(-0.5 *
+                    ((rp[:, None] - rp[None, :]) / bw_r) ** 2))
+        draws[b] = float((Kxc * Kyr).sum()) / n ** 2
     return draws

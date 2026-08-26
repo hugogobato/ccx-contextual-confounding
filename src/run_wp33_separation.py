@@ -24,14 +24,15 @@ os.environ.setdefault("OMP_NUM_THREADS", "1")
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("MKL_NUM_THREADS", "1")
 
-from continuous_witness import k1_witness, k2_witness, hsic_stat  # noqa: E402
+from continuous_witness import (k1_witness, k2_witness,  # noqa: E402
+                                hsic_resid_stat)
 import phase3_dgps as d3  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "results" / "raw" / "phase3"
 ALPHA_GRID = [round(0.01 * a, 2) for a in range(1, 21)]
 TRIM_PRIMARY = 0.01       # primary policy per plan (trim 1st/99th)
-HSIC_CAP = 2500
+HSIC_CAP = 800            # must match run_wp32_calibration (v2)
 
 
 def process_group(g):
@@ -43,7 +44,7 @@ def process_group(g):
                                         kind=kind)
         obs = {"k1": k1_witness(x, y, trim_q=TRIM_PRIMARY),
                "k2": k2_witness(x, y, trim_q=TRIM_PRIMARY),
-               "hsic": hsic_stat(x[:HSIC_CAP], y[:HSIC_CAP])}
+               "hsic": hsic_resid_stat(x[:HSIC_CAP], y[:HSIC_CAP])}
         for meth, sv in obs.items():
             out.append({"n": n, "d": d, "noise": noise, "kind": kind,
                         "b": b, "seed": seed, "method": meth,
