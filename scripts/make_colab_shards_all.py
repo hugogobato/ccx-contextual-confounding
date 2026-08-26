@@ -54,7 +54,7 @@ def write_nb(path, cells):
     nb = {
         "nbformat": 4,
         "nbformat_minor": 5,
-        "metadata": {"accelerator": "GPU", "colab": {"provenance": []}},
+        "metadata": {"accelerator": "None", "colab": {"provenance": []}},
         "cells": [nb_cell(c) for c in cells],
     }
     Path(path).write_text(json.dumps(nb))
