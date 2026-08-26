@@ -1,9 +1,0 @@
-__pycache__/
-*.pyc
-results/
-figures/
-colab/shards/
-colab/downloads/
-manifests/
-*.tmp
-.ipynb_checkpoints/

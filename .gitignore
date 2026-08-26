@@ -1,7 +1,4 @@
 __pycache__/
 *.pyc
-figures/
-colab/shards/
-manifests/
 *.tmp
 .ipynb_checkpoints/
