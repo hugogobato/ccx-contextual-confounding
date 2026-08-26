@@ -125,7 +125,13 @@ def get_gm_battery(M, cell):
 
 
 def get_binary_facets():
-    z = np.load(ROOT / "results" / "phase1_enumeration" / "facets_iv.npz")
+    p = ROOT / "results" / "phase1_enumeration" / "facets_iv.npz"
+    if not p.exists():
+        from models import build_iv_A, discover_facets
+        H, b = discover_facets(build_iv_A(), seed=0)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        np.savez(p, H=H, b=b)
+    z = np.load(p)
     return z["H"].astype(float), z["b"].astype(float)
 
 

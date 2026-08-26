@@ -1,0 +1,366 @@
+{
+  "git_sha": "d2dd265cef5ef171684997e8115126d75a2dd4cd",
+  "total": 72,
+  "shards": [
+    {
+      "file": "ccx_phase1_shard00.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard01.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard02.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard03.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard04.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard05.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard06.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard07.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard08.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_phase1_shard09.ipynb",
+      "tag": "phase1",
+      "entries": 12
+    },
+    {
+      "file": "ccx_wp22_shard00.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard01.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard02.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard03.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard04.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard05.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard06.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard07.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard08.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard09.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard10.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard11.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard12.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard13.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard14.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard15.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard16.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp22_shard17.ipynb",
+      "tag": "wp22",
+      "entries": 10
+    },
+    {
+      "file": "ccx_wp23_shard00.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard01.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard02.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard03.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard04.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard05.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard06.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard07.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp23_shard08.ipynb",
+      "tag": "wp23",
+      "entries": 48
+    },
+    {
+      "file": "ccx_wp24_shard00.ipynb",
+      "tag": "wp24",
+      "entries": 1
+    },
+    {
+      "file": "ccx_wp32_shard00.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard01.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard02.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard03.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard04.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard05.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard06.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard07.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard08.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard09.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard10.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard11.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard12.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard13.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard14.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard15.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard16.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp32_shard17.ipynb",
+      "tag": "wp32",
+      "entries": 3
+    },
+    {
+      "file": "ccx_wp33_shard00.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard01.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard02.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard03.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard04.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard05.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard06.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard07.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard08.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard09.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard10.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard11.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard12.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard13.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard14.ipynb",
+      "tag": "wp33",
+      "entries": 51
+    },
+    {
+      "file": "ccx_wp33_shard15.ipynb",
+      "tag": "wp33",
+      "entries": 45
+    }
+  ]
+}
