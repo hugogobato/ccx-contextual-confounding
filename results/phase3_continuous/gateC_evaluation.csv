@@ -1,0 +1,13 @@
+method,kind,noise,panels_total,panels_eligible,panels_with_adv_ge_025,worst_size_favorable,all_monotone,pass_rule_met
+k1,conf_lin,gauss,6,4,0,0.0,True,False
+k1,conf_lin,t3,6,0,0,0.01,True,False
+k1,conf_lin,lognorm,6,0,0,0.19,True,False
+k1,conf_nonlin,gauss,6,0,0,0.0,True,False
+k1,conf_nonlin,t3,6,4,4,0.01,True,True
+k1,conf_nonlin,lognorm,6,4,0,0.19,True,False
+k2,conf_lin,gauss,6,4,0,0.02,True,False
+k2,conf_lin,t3,6,0,0,0.13,True,False
+k2,conf_lin,lognorm,6,0,0,0.07,True,False
+k2,conf_nonlin,gauss,6,0,0,0.02,True,False
+k2,conf_nonlin,t3,6,4,0,0.13,True,False
+k2,conf_nonlin,lognorm,6,4,2,0.07,True,True

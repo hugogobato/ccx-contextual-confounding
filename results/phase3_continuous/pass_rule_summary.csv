@@ -1,0 +1,13 @@
+method,kind,noise,favorable_cells_total,cells_with_adv_ge_025,monotone_in_b_per_panel,max_power,pass_rule_met_legacy
+k1,conf_lin,gauss,135,0,True,0.365,False
+k1,conf_lin,lognorm,159,27,True,0.76,True
+k1,conf_lin,t3,180,0,True,0.47,False
+k1,conf_nonlin,gauss,135,0,True,0.45,False
+k1,conf_nonlin,lognorm,159,78,True,0.995,True
+k1,conf_nonlin,t3,180,99,True,0.93,True
+k2,conf_lin,gauss,135,0,True,0.025,False
+k2,conf_lin,lognorm,159,0,True,0.09,False
+k2,conf_lin,t3,180,0,True,0.03,False
+k2,conf_nonlin,gauss,135,0,True,0.085,False
+k2,conf_nonlin,lognorm,159,78,True,0.965,True
+k2,conf_nonlin,t3,180,0,True,0.595,False

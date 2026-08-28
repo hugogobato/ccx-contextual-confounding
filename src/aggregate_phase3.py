@@ -70,6 +70,7 @@ def main():
         print("wp33 not run yet; wrote null tables only")
         return
     df33 = pd.concat([pd.read_csv(f) for f in f33], ignore_index=True)
+    df33["kind_orig"] = df33["kind"]
     df33["kind"] = df33["kind"].replace(
         {"conf_lin": "null_gauss", "conf_nonlin": "null_nonparam"})
     # alternatives judged against the SAME structural class as the nulls:
@@ -78,8 +79,8 @@ def main():
     df33["cv_0.05"] = [cv_for(r.kind, r.noise, r.n, r.d, r.method)
                        for r in df33.itertuples()]
     df33["rej"] = df33["stat_obs"] > df33["cv_0.05"]
-    sep = (df33.groupby(["kind", "noise", "n", "d", "b", "method"],
-                        as_index=False)
+    sep = (df33.groupby(["kind_orig", "kind", "noise", "n", "d", "b",
+                         "method"], as_index=False)
            .agg(power=("rej", "mean"), n_reps=("rej", "size")))
 
     sz_lu = {(r.noise, r.n, r.d, r.method): r.size_05
@@ -104,7 +105,8 @@ def main():
             null_kind = ("null_gauss" if kd == "conf_lin"
                          else "null_nonparam")
             for nz in ("gauss", "t3", "lognorm"):
-                sub = sep[(sep["method"] == meth) & (sep["kind"] == kd) &
+                sub = sep[(sep["method"] == meth) &
+                          (sep["kind_orig"] == kd) &
                           (sep["noise"] == nz) & (sep["b"] >= 0.4) &
                           (sep["n"] <= 5000) & (sep["d"] <= 3)]
                 if not len(sub):
@@ -116,7 +118,7 @@ def main():
                     mono = bool(np.all(np.diff(g["power"].values) >= -0.08))
                     base_ok = True
                     hsic_rows = sep[(sep["method"] == "hsic") &
-                                    (sep["kind"] == kd) &
+                                    (sep["kind_orig"] == kd) &
                                     (sep["noise"] == nz) &
                                     (sep["n"] == nv) & (sep["d"] == dv) &
                                     (sep["b"] >= 0.4)]
@@ -157,7 +159,7 @@ def main():
                                         "power"]] \
         .rename(columns={"power": "power_hsic"})
     pw = pw.merge(inc, on=["noise", "n", "d", "b"], how="left")
-    for (meth, kd, nz), g in pw.groupby(["method", "kind", "noise"]):
+    for (meth, kd, nz), g in pw.groupby(["method", "kind_orig", "noise"]):
         ok_base = g[g["power_hsic"] <= 0.15]
         passed = ok_base[ok_base["advantage"] >= 0.25]
         mono_panels = True

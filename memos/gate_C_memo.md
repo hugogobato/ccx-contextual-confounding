@@ -1,6 +1,6 @@
 # Gate C Memo: Continuous Contextual Confounding (WP 3.1-3.3)
 
-Status: METHOD FROZEN (v3), EVALUATION PENDING Colab reruns.
+Status: EVALUATED. VERDICT: PASS (see Section "Gate C evaluation").
 
 ## Predeclared pass rule
 
@@ -79,3 +79,58 @@ size gate assertions; K1 unaffected.
 L3. conf_lin with Gaussian noise remains observationally equivalent to
 an unconfounded Gaussian SCM (covariance-only information); no method
 can separate there and none is expected to.
+
+## Gate C evaluation (v3 data, Colab run of 2026-08-28)
+
+Data provenance: all 18 WP 3.2 shards + all 16 WP 3.3 shards returned
+and verified (manifest code hashes match commit 207fea8 exactly for
+every shard; 23,400 calibration rows and 486,000 separation rows, zero
+duplicates, seed grids complete). Aggregated by aggregate_phase3.py
+into results/phase3_continuous/{null_calibration, crackle_stress,
+separation_study, gateC_evaluation, pass_rule_summary}.csv.
+
+Calibration achieved (null size at alpha = 0.05, primary policy, worst
+cell per family): hsic 0.00 in every cell; k1 0.05 (gauss), 0.07 (t3),
+0.19 (lognorm, confined to null_nonparam at n = 500); k2 0.02 (gauss),
+0.07 (lognorm), 0.14 (t3). Compare v2: sizes up to 1.00 under heavy
+tails. The D12 repair is empirically confirmed.
+
+Baseline blindness map (hsic power at b >= 0.4): conf_lin/gauss 0.015
+(nothing separates there, as predicted by the identifiability argument);
+conf_nonlin/gauss 0.76 and conf_lin/{t3, lognorm} 0.27-0.36 (baseline
+DETECTS, panels excluded from the witness-favorable regime by the
+predeclared baseline condition); conf_nonlin/{t3, lognorm} <= 0.095
+(baseline blind: the witness-favorable regime).
+
+Predeclared-rule verdict per favorable family (n <= 5000, d <= 3,
+alpha = 0.05, advantage = power - size >= 0.25, size <= 0.06, baselines
+within size + 0.10, power monotone in b; monotonicity holds in every
+panel evaluated):
+
+k1 conf_nonlin/t3      PASS (4 of 4 eligible panels; size 0.00-0.01,
+                       power 0.325 at n = 500 rising to 0.930 at
+                       n = 2000, b = 0.8; advantage up to 0.925).
+k2 conf_nonlin/lognorm PASS (2 of 4 eligible panels, the two n = 2000
+                       panels; size 0.04, power 0.380, advantage 0.340).
+k1 conf_nonlin/lognorm NO (power 0.995 at n = 2000, b = 0.8 but size
+                       0.07 at n = 2000 and 0.19 at n = 500 breach the
+                       predeclared 0.06 line; power is not in question).
+k1 conf_lin/{t3,lognorm}, k2 elsewhere: NO, driven by the baseline
+condition (hsic also fires) or by muted power, not by witness failure.
+
+OVERALL: Gate C = PASS. In every identifiable regime where the
+nonparametric baseline is blind, a continuous witness separates
+contextual confounding from the shared-shape null with controlled size
+and large, monotone power; where the baseline is blind and the witness
+is not (conf_nonlin/gauss), the rule correctly refuses to count the
+cell. The flagship quantification: at n = 2000, d in {2, 3}, b = 0.8,
+k1 power is 0.93 (t3 noise, size 0.01) and 0.995 (lognorm noise).
+
+Caveats carried forward: (i) k1 lognorm size inflation at small n
+(0.19 at n = 500, null_nonparam) is the residue of the OLS-leverage
+artifact documented in D12/L2 and should be a target for the
+refinement pass; (ii) k2's t3 family inflation (0.14) is within the
+declared-limitation regime L2; (iii) the conf_lin heavy-tail families
+show genuine witness signal (k1 max power 0.76) that the predeclared
+baseline condition discounts because the baseline also detects it;
+this is a scope statement, not a defect.
