@@ -2,6 +2,27 @@
 
 Pinned code: `d2dd265` (all source, drivers, tests, configs). Deterministic: same seeds → identical numbers; spot-check against gate memos after re-run.
 
+## Phase 4 (2026-08-29)
+
+Per D-P4.5, Phase 4 was sized to run LOCALLY (discrete blocks measure
+0.1-0.2 s/seed; continuous alt/adversarial blocks are minutes-to-an-hour
+jobs). The only candidate for offload is `p4cnull` (24 groups: n in
+{8000, 20000} x d {2,3,5} x noise {gauss,t3} x kinds, B=199, ~50-60
+min/group), which is being attempted locally first.
+
+IF any `p4cnull` groups are missing in the morning (check
+`results/raw/phase4/overnight.log` and the p4cnull_*.csv files):
+
+1. `python3 scripts/make_colab_shards_p4.py --shards 12` — generates
+   notebooks ONLY for groups still missing, pinned to current HEAD.
+   Commit and push BEFORE generating (the clone cell checks out GIT_SHA).
+2. Upload `colab/shards/ccx_p4cnull_shardXX.ipynb` to Colab, Runtime →
+   Run all. Each writes `ccx_p4cnull_shardXX.csv` +
+   `ccx_p4cnull_manifest_shardXX.json` and auto-downloads.
+3. Place downloads in `results/raw/phase4/` and re-run
+   `python3 src/aggregate_phase4.py` (it picks up Colab shards
+   automatically; keys are (n, d, noise, kind, seed, method, trim)).
+
 ## What's here (72 notebooks)
 
 * **Already validated** (do not re-run unless needed):

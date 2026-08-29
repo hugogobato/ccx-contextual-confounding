@@ -186,3 +186,72 @@ Subset of null_calibration.csv with noise in {t3, lognorm}.
 
 Power vs b per (kind, noise, n, d, method) against transferred envelope CVs,
 with null_size column and pass-rule summary (pass_rule_summary.csv).
+
+---
+
+# Phase 4 (results/raw/phase4/ + results/phase4_grid/)
+
+## results/raw/phase4/p4dnull_*.csv
+
+Discrete null-calibration raw rows. One row per (dataset, stat, engine):
+cell (2-2-4/2-2-5/2-2-8), kind (chain/u_on_x/u_on_y), tail (none/t3 = the
+predeclared boundary-stress arm, D-P4.1), n (500/1000/2000), seed (700k
+stream), arm (clean), feas_contam, stat, engine (para_boot/crt_cond for
+boot rows; none + B=0 for observed-only), B, stat_obs, cv_0.01..cv_0.20.
+
+## results/raw/phase4/p4dalt_*.csv
+
+Discrete alternative raw rows: cell, tail, family (mixture), rho
+(0.2..0.8), n, seed (800k stream), dt_stats_s, stat, engine (none),
+stat_obs.
+
+## results/raw/phase4/p4dadv_*.csv
+
+Discrete adversarial-null raw rows: cell, adv_id (A1..A4), tail_env, n,
+seed (900k stream), feas_contam (population feasibility of contaminated
+law; A4 only), stat, engine (none), stat_obs.
+
+## results/raw/phase4/p4cnull_*.csv
+
+Continuous null-calibration raw rows at n in {8000, 20000} (D-P4.8 fixed
+code). Schema identical to wp32: n, d, noise (gauss/t3), kind
+(null_gauss/null_nonparam), seed (400k stream), method (k1/k2/hsic),
+trim, B, stat_obs, cv_0.01..cv_0.20, dt_boot_s.
+
+## results/raw/phase4/p4calt_*.csv
+
+Continuous alternative raw rows at n in {8000, 20000} under the D-P4.8
+fixed code (n = 2000 reuses verified wp33 rows bit-identically). Schema
+identical to wp33: n, d, noise, kind (conf_lin/conf_nonlin), b, seed
+(500k stream), method, stat_obs.
+
+## results/raw/phase4/p4cadv_*.csv
+
+Continuous adversarial-null raw rows (B1..B4, self-calibrated per
+dataset): adv_id, n, d, noise, seed (900k stream), method (k1/k2/hsic),
+trim, B, stat_obs, cv_0.01..cv_0.20.
+
+## results/raw/phase4/p4scale.csv
+
+Scaling measurements: arm (discrete/continuous), cell, Q (coupling dim or
+n), n, rep, method (stats_all/cf1_lp/slack_lp/k1_v3/k2_v3/hsic_resid),
+seconds, peak_bytes.
+
+## results/raw/phase4/p4realdata.csv
+
+Real-data smoke rows: analysis (R1_card/R2_mroz/R3_jtrain_rct/
+R4_card_placebo), method, trim, B, stat_obs, cv_0.01..cv_0.20 (own
+parametric-bootstrap CVs for discrete rows; permutation CVs for k1/k2;
+absent for hsic), cell/n_env (discrete rows), K_strata (continuous rows).
+
+## results/phase4_grid/*.csv
+
+Processed Phase 4 outputs (see src/aggregate_phase4.py docstring):
+discrete_envelope_cvs, discrete_null_sizes, discrete_power_curves
+(power/null_size/advantage per cell x tail x rho x n x stat x engine),
+discrete_adversarial (FPR vs envelopes), continuous_null_sizes,
+continuous_separation (power vs b over the Phase 4 grid with
+power_hsic/advantage columns), continuous_adversarial, scaling_phase4,
+realdata_smoke (stat_obs + reject_05_own/reject_05_env flags),
+gateD_evaluation (per-arm region share, monotonicity, adversarial FPR,
+GO inputs per the predeclared Gate D rules).

@@ -114,7 +114,14 @@ def _component_grid(G):
 class K1Witness:
     """Kernelized forcing-divergence witness over a shared coupling grid."""
 
-    def __init__(self, resids, G=32, bw=None, fw_iters=300, m_cap=600):
+    def __init__(self, resids, G=32, bw=None, fw_iters=300, m_cap=400):
+        # D13 (Phase 4): m_cap must not exceed the self-Gram subset (400).
+        # With m_cap=600 and strata larger than 600 (n >= 4000 at K=8),
+        # b_c (mean embedding) and self_mmd_const were computed on
+        # DIFFERENT subsets, inflating the null right tail and collapsing
+        # power at n >= 8000. m_cap=400 aligns the subsets exactly and is
+        # a bit-identical no-op for every stratum of size <= 400 (all
+        # Gate C verdict-relevant cells: n in {500, 2000}).
         self.K = len(resids)
         self.G = G
         self.fw_iters = fw_iters
@@ -415,6 +422,30 @@ def _ctx_linear_trend(x, y, ctx, Kr):
     return out
 
 
+def _ctx_quad_trend(x, y, ctx, Kr):
+    """Per-context QUADRATIC trend fits (Phase 4 detrend ablation / L4
+    remedy for the B4 heavy-curvature scope boundary). Falls back to
+    linear (then constant) when the stratum is too small for a stable
+    3-parameter fit. NOTE (D12 caveat): per-context OLS carries a leverage
+    artifact; the quadratic version amplifies it — always pair with the
+    winsorization + permutation calibration and compare against the
+    linear variant (ablation axis predeclared in WP 3.3)."""
+    out = []
+    for c in range(Kr):
+        m = ctx == c
+        xs, ys = x[m], y[m]
+        if len(xs) >= 30 and np.std(xs) > 1e-12:
+            mu, sd = xs.mean(), max(xs.std(), 1e-12)
+            z = (xs - mu) / sd                      # standardized design
+            A = np.vstack([z, z ** 2, np.ones(len(xs))]).T
+            coef, *_ = np.linalg.lstsq(A, ys, rcond=None)
+            out.append(ys - A @ coef)
+        else:
+            out.extend(_ctx_linear_trend(xs, ys, np.zeros(len(xs),
+                       dtype=int), 1))
+    return out
+
+
 def _standardize_ctx(rs):
     return [(r - r.mean()) / max(r.std(), 1e-9) for r in rs]
 
@@ -442,11 +473,15 @@ def _wz_std_resids(x, y, K=None, trim_q=0.05, detrend="linear",
                    score=False):
     """Full v3 residual preprocessing: trend removal, winsorization,
     per-context standardization, optional pooled normal scoring.
+    detrend: "linear" (v3 frozen default) or "quadratic" (L4 ablation).
     Returns (list_of_vectors, lens, pool)."""
     ctx = make_contexts(x, K=K)
     Kr = len(np.unique(ctx))
-    base = (_ctx_linear_trend(x, y, ctx, Kr) if detrend == "linear"
-            else context_residuals(x, y, ctx, Kr, trim_q=0.0))
+    if detrend == "quadratic":
+        base = _ctx_quad_trend(x, y, ctx, Kr)
+    else:
+        base = (_ctx_linear_trend(x, y, ctx, Kr) if detrend == "linear"
+                else context_residuals(x, y, ctx, Kr, trim_q=0.0))
     rs = []
     for r in base:
         if trim_q > 0 and len(r) >= 10:
@@ -459,15 +494,17 @@ def _wz_std_resids(x, y, K=None, trim_q=0.05, detrend="linear",
     return zz, [len(z) for z in zz], np.concatenate(zz)
 
 
-def k1_v3_stat(x, y, trim_q=0.05, K=None, score=False):
+def k1_v3_stat(x, y, trim_q=0.05, K=None, score=False, detrend="linear"):
     """Point statistic T_K1 under the v3 pipeline (label-swap kernel QP)."""
-    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score)
+    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score,
+                              detrend=detrend)
     return float(K1Witness(zz).solve())
 
 
-def k2_v3_stat(x, y, trim_q=0.05, K=None, score=False):
+def k2_v3_stat(x, y, trim_q=0.05, K=None, score=False, detrend="linear"):
     """Point statistic T_K2 under the v3 pipeline (excess transport)."""
-    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score)
+    zz, _, _ = _wz_std_resids(x, y, K=K, trim_q=trim_q, score=score,
+                              detrend=detrend)
     return k2_from_resids(zz)
 
 
@@ -482,7 +519,7 @@ def _perm_pool_draws(zz, lens, pool, bw, B, rng, smo_rounds=80):
 
 
 def k1_k2_perm_calibration(x, y, B=199, trims=(0.05,), K=None, rng=None,
-                           bmap=None, score=False):
+                           bmap=None, score=False, detrend="linear"):
     """Joint label-permutation calibration for T_K1/T_K2.
 
     Returns (obs_dict, draws_dict) where keys are trimming levels and
@@ -493,7 +530,8 @@ def k1_k2_perm_calibration(x, y, B=199, trims=(0.05,), K=None, rng=None,
     Kr = len(np.unique(ctx))
     out_obs, out_dr = {}, {}
     for tq in trims:
-        zz, lens, pool = _wz_std_resids(x, y, K=K, trim_q=tq, score=score)
+        zz, lens, pool = _wz_std_resids(x, y, K=K, trim_q=tq, score=score,
+                                        detrend=detrend)
         mo = K1Witness(zz)
         bw = mo.bw                      # pooled law invariant under swap
         o1 = float(mo.solve())

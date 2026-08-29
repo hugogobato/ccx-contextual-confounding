@@ -3,3 +3,4 @@ scipy==1.17.1
 pandas==3.0.1
 matplotlib>=3.9
 inflation==2.0.3  # installed for baseline cross-check attempts; NOTE: v2.0.3 cannot encode plain IV DAGs (observed->observed edges without common latent parent rejected); see baselines/ineq_tests.py deviation note
+wooldridge>=1.0  # Phase 4 real-data smoke (card, mroz, jtrain); bundled datasets, offline after install

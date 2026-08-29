@@ -1,0 +1,244 @@
+=== v4 stage 1: p4cnull (36 groups) Sat Aug 29 09:18:39 -03 2026
+[p4cnull] groups: 36
+[p4cnull] 1/36 rows=600 | 2157s
+[p4cnull] 2/36 rows=600 | 2157s
+[p4cnull] 3/36 rows=1400 | 2737s
+[p4cnull] 4/36 rows=1400 | 2740s
+[p4cnull] 5/36 rows=1400 | 2744s
+[p4cnull] 6/36 rows=1400 | 2757s
+[p4cnull] 7/36 rows=600 | 4975s
+[p4cnull] 8/36 rows=600 | 4987s
+[p4cnull] 9/36 rows=600 | 5586s
+[p4cnull] 10/36 rows=600 | 5597s
+[p4cnull] 11/36 rows=1400 | 6028s
+[p4cnull] 12/36 rows=1400 | 6030s
+[p4cnull] 13/36 rows=600 | 8127s
+[p4cnull] 14/36 rows=600 | 8132s
+[p4cnull] 15/36 rows=1400 | 8571s
+[p4cnull] 16/36 rows=1400 | 8579s
+[p4cnull] 17/36 rows=1400 | 10111s
+[p4cnull] 18/36 rows=1400 | 10113s
+[p4cnull] 19/36 rows=600 | 11443s
+[p4cnull] 20/36 rows=600 | 11446s
+[p4cnull] 21/36 rows=1400 | 12773s
+[p4cnull] 22/36 rows=1400 | 12786s
+[p4cnull] 23/36 rows=600 | 12914s
+[p4cnull] 24/36 rows=600 | 12916s
+[p4cnull] 25/36 rows=600 | 16752s
+[p4cnull] 26/36 rows=600 | 16754s
+[p4cnull] 27/36 rows=1400 | 17259s
+[p4cnull] 28/36 rows=1400 | 17268s
+[p4cnull] 29/36 rows=1400 | 18467s
+[p4cnull] 30/36 rows=1400 | 18489s
+[p4cnull] 31/36 rows=600 | 20637s
+[p4cnull] 32/36 rows=600 | 20682s
+[p4cnull] 33/36 rows=600 | 22191s
+[p4cnull] 34/36 rows=600 | 22229s
+[p4cnull] 35/36 rows=1400 | 22496s
+[p4cnull] 36/36 rows=1400 | 22499s
+driver complete
+=== v4 stage 2: p4calt (144 groups) Sat Aug 29 15:33:44 -03 2026
+[p4calt] groups: 144
+[p4calt] 1/144 rows=600 | 30s
+[p4calt] 2/144 rows=600 | 30s
+[p4calt] 3/144 rows=600 | 30s
+[p4calt] 4/144 rows=600 | 30s
+[p4calt] 5/144 rows=600 | 31s
+[p4calt] 6/144 rows=600 | 31s
+[p4calt] 7/144 rows=600 | 61s
+[p4calt] 8/144 rows=600 | 62s
+[p4calt] 9/144 rows=600 | 62s
+[p4calt] 10/144 rows=600 | 62s
+[p4calt] 11/144 rows=600 | 62s
+[p4calt] 12/144 rows=600 | 63s
+[p4calt] 13/144 rows=600 | 94s
+[p4calt] 14/144 rows=600 | 94s
+[p4calt] 15/144 rows=600 | 95s
+[p4calt] 16/144 rows=600 | 95s
+[p4calt] 17/144 rows=600 | 96s
+[p4calt] 18/144 rows=600 | 96s
+[p4calt] 19/144 rows=600 | 123s
+[p4calt] 20/144 rows=600 | 125s
+[p4calt] 21/144 rows=600 | 125s
+[p4calt] 22/144 rows=600 | 126s
+[p4calt] 23/144 rows=600 | 126s
+[p4calt] 24/144 rows=600 | 127s
+[p4calt] 25/144 rows=600 | 152s
+[p4calt] 26/144 rows=600 | 155s
+[p4calt] 27/144 rows=600 | 155s
+[p4calt] 28/144 rows=600 | 155s
+[p4calt] 29/144 rows=600 | 157s
+[p4calt] 30/144 rows=600 | 158s
+[p4calt] 31/144 rows=600 | 178s
+[p4calt] 32/144 rows=600 | 180s
+[p4calt] 33/144 rows=600 | 181s
+[p4calt] 34/144 rows=600 | 182s
+[p4calt] 35/144 rows=600 | 187s
+[p4calt] 36/144 rows=600 | 188s
+[p4calt] 37/144 rows=600 | 207s
+[p4calt] 38/144 rows=600 | 210s
+[p4calt] 39/144 rows=600 | 211s
+[p4calt] 40/144 rows=600 | 212s
+[p4calt] 41/144 rows=600 | 215s
+[p4calt] 42/144 rows=600 | 216s
+[p4calt] 43/144 rows=600 | 237s
+[p4calt] 44/144 rows=600 | 240s
+[p4calt] 45/144 rows=600 | 242s
+[p4calt] 46/144 rows=600 | 243s
+[p4calt] 47/144 rows=600 | 247s
+[p4calt] 48/144 rows=600 | 248s
+[p4calt] 49/144 rows=600 | 272s
+[p4calt] 50/144 rows=600 | 274s
+[p4calt] 51/144 rows=600 | 276s
+[p4calt] 52/144 rows=600 | 278s
+[p4calt] 53/144 rows=600 | 281s
+[p4calt] 54/144 rows=600 | 282s
+[p4calt] 55/144 rows=600 | 307s
+[p4calt] 56/144 rows=600 | 310s
+[p4calt] 57/144 rows=600 | 312s
+[p4calt] 58/144 rows=600 | 314s
+[p4calt] 59/144 rows=600 | 317s
+[p4calt] 60/144 rows=600 | 319s
+[p4calt] 61/144 rows=600 | 345s
+[p4calt] 62/144 rows=600 | 347s
+[p4calt] 63/144 rows=600 | 350s
+[p4calt] 64/144 rows=600 | 351s
+[p4calt] 65/144 rows=600 | 354s
+[p4calt] 66/144 rows=600 | 356s
+[p4calt] 67/144 rows=600 | 382s
+[p4calt] 68/144 rows=600 | 385s
+[p4calt] 69/144 rows=600 | 387s
+[p4calt] 70/144 rows=600 | 389s
+[p4calt] 71/144 rows=600 | 391s
+[p4calt] 72/144 rows=600 | 394s
+[p4calt] 73/144 rows=600 | 419s
+[p4calt] 74/144 rows=600 | 422s
+[p4calt] 75/144 rows=600 | 424s
+[p4calt] 76/144 rows=600 | 426s
+[p4calt] 77/144 rows=600 | 427s
+[p4calt] 78/144 rows=600 | 431s
+[p4calt] 79/144 rows=600 | 456s
+[p4calt] 80/144 rows=600 | 458s
+[p4calt] 81/144 rows=600 | 461s
+[p4calt] 82/144 rows=600 | 463s
+[p4calt] 83/144 rows=600 | 464s
+[p4calt] 84/144 rows=600 | 473s
+[p4calt] 85/144 rows=600 | 493s
+[p4calt] 86/144 rows=600 | 494s
+[p4calt] 87/144 rows=600 | 497s
+[p4calt] 88/144 rows=600 | 499s
+[p4calt] 89/144 rows=600 | 503s
+[p4calt] 90/144 rows=600 | 511s
+[p4calt] 91/144 rows=600 | 529s
+[p4calt] 92/144 rows=600 | 531s
+[p4calt] 93/144 rows=600 | 534s
+[p4calt] 94/144 rows=600 | 536s
+[p4calt] 95/144 rows=600 | 544s
+[p4calt] 96/144 rows=600 | 549s
+[p4calt] 97/144 rows=600 | 574s
+[p4calt] 98/144 rows=600 | 575s
+[p4calt] 99/144 rows=600 | 581s
+[p4calt] 100/144 rows=600 | 584s
+[p4calt] 101/144 rows=600 | 589s
+[p4calt] 102/144 rows=600 | 594s
+[p4calt] 103/144 rows=600 | 623s
+[p4calt] 104/144 rows=600 | 623s
+[p4calt] 105/144 rows=600 | 626s
+[p4calt] 106/144 rows=600 | 628s
+[p4calt] 107/144 rows=600 | 634s
+[p4calt] 108/144 rows=600 | 639s
+[p4calt] 109/144 rows=600 | 667s
+[p4calt] 110/144 rows=600 | 667s
+[p4calt] 111/144 rows=600 | 671s
+[p4calt] 112/144 rows=600 | 673s
+[p4calt] 113/144 rows=600 | 679s
+[p4calt] 114/144 rows=600 | 687s
+[p4calt] 115/144 rows=600 | 711s
+[p4calt] 116/144 rows=600 | 712s
+[p4calt] 117/144 rows=600 | 716s
+[p4calt] 118/144 rows=600 | 718s
+[p4calt] 119/144 rows=600 | 726s
+[p4calt] 120/144 rows=600 | 732s
+[p4calt] 121/144 rows=600 | 759s
+[p4calt] 122/144 rows=600 | 760s
+[p4calt] 123/144 rows=600 | 764s
+[p4calt] 124/144 rows=600 | 766s
+[p4calt] 125/144 rows=600 | 772s
+[p4calt] 126/144 rows=600 | 778s
+[p4calt] 127/144 rows=600 | 804s
+[p4calt] 128/144 rows=600 | 805s
+[p4calt] 129/144 rows=600 | 809s
+[p4calt] 130/144 rows=600 | 812s
+[p4calt] 131/144 rows=600 | 817s
+[p4calt] 132/144 rows=600 | 823s
+[p4calt] 133/144 rows=600 | 847s
+[p4calt] 134/144 rows=600 | 847s
+[p4calt] 135/144 rows=600 | 851s
+[p4calt] 136/144 rows=600 | 854s
+[p4calt] 137/144 rows=600 | 870s
+[p4calt] 138/144 rows=600 | 888s
+[p4calt] 139/144 rows=600 | 888s
+[p4calt] 140/144 rows=600 | 893s
+[p4calt] 141/144 rows=600 | 895s
+[p4calt] 142/144 rows=600 | 911s
+[p4calt] 143/144 rows=600 | 926s
+[p4calt] 144/144 rows=600 | 926s
+driver complete
+=== v4 stage 3: p4cadv Sat Aug 29 15:49:13 -03 2026
+[p4cadv] groups: 4
+[p4cadv] 1/4 rows=600 | 1259s
+[p4cadv] 2/4 rows=600 | 1259s
+[p4cadv] 3/4 rows=600 | 1259s
+[p4cadv] 4/4 rows=600 | 1259s
+driver complete
+=== v4 stage 4: p4realdata Sat Aug 29 16:10:14 -03 2026
+wrote 37 rows -> /home/hugo_souto/Stuff/Research/Sheaf_Ideas/Idea2/Contextual_Confounding/results/raw/phase4/p4realdata.csv
+       analysis       method     stat_obs
+        R1_card    kl_plugin 0.000000e+00
+        R1_card     kl_split 1.816748e-02
+        R1_card  kl_crossfit 1.801706e-02
+        R1_card   cf1_margin 0.000000e+00
+        R1_card slack_plugin 0.000000e+00
+        R1_card   gm_battery 0.000000e+00
+        R1_card        gtest 1.218570e+02
+        R1_card           k1 5.283703e-03
+        R1_card           k2 1.285754e-01
+        R1_card         hsic 7.407287e-04
+R4_card_placebo    kl_plugin 0.000000e+00
+R4_card_placebo     kl_split 3.141055e-02
+R4_card_placebo  kl_crossfit 3.011646e-02
+R4_card_placebo   cf1_margin 0.000000e+00
+R4_card_placebo slack_plugin 0.000000e+00
+R4_card_placebo   gm_battery 0.000000e+00
+R4_card_placebo        gtest 1.218570e+02
+R4_card_placebo           k1 3.849858e-03
+R4_card_placebo           k2 6.913015e-02
+R4_card_placebo         hsic 1.254072e-03
+        R2_mroz    kl_plugin 3.456355e-17
+        R2_mroz     kl_split 9.131163e+01
+        R2_mroz  kl_crossfit 9.280500e+01
+        R2_mroz   cf1_margin 0.000000e+00
+        R2_mroz slack_plugin 0.000000e+00
+        R2_mroz   gm_battery 0.000000e+00
+        R2_mroz        gtest 2.809287e+01
+        R2_mroz           k1 1.790359e-03
+        R2_mroz           k2 6.387397e-02
+        R2_mroz         hsic 9.694391e-04
+  R3_jtrain_rct    kl_plugin 5.314658e-17
+  R3_jtrain_rct     kl_split 2.756588e+01
+  R3_jtrain_rct  kl_crossfit 1.411400e+01
+  R3_jtrain_rct   cf1_margin 1.110223e-16
+  R3_jtrain_rct slack_plugin 0.000000e+00
+  R3_jtrain_rct   gm_battery 1.110223e-16
+  R3_jtrain_rct        gtest 5.138786e-01
+=== v4 stage 5: aggregate + Gate D Sat Aug 29 16:10:31 -03 2026
+       arm                        method                      baseline  adv_threshold  share_ge_020  region_share  qualifying_cells  grid_cells monotone_all_panels  adversarial_fpr  adversarial_fpr_in_class                                                                                adversarial_fpr_by_config  gateD_go_input
+continuous                            k1                          hsic            0.2          True      0.250000                36         144                True             0.02                     0.000    {"B1_selection_trunc": 0.0, "B2_mixture_x": 0.0, "B3_clipped_noise": 0.0, "B4_heavy_curvature": 0.02}            True
+continuous                            k2                          hsic            0.2         False      0.083333                12         144                True             0.15                     0.115 {"B1_selection_trunc": 0.01, "B2_mixture_x": 0.115, "B3_clipped_noise": 0.0, "B4_heavy_curvature": 0.15}           False
+  discrete kl_family(best_size_eligible) calibrated_LP(cf1/slack best)            0.2         False      0.000000                 0          72                                 0.00                       NaN                                                                                                      NaN           False
+=== v4 stage 6: figures Sat Aug 29 16:10:35 -03 2026
+cont_power_panels done
+discrete_power_panels done
+adversarial_fpr done
+scaling_phase4 done
+=== V4 RUN COMPLETE Sat Aug 29 16:10:37 -03 2026

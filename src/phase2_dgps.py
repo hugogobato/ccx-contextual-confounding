@@ -36,13 +36,25 @@ def _rand_mech(rng, k_out, k_in):
     return rng.integers(0, k_out, size=k_out ** k_in)
 
 
-def sample_null_mechanism(rng, kz, kx, ky, kind):
+def sample_null_mechanism(rng, kz, kx, ky, kind,     p_conc=None, p_z_given=None):
     """Return (samp(z,u) -> (x,y), p_z). Mechanisms are deterministic tables
-    over (z, u); independent noise is absorbed by table randomness."""
-    while True:
-        p_z = rng.dirichlet(np.ones(kz))
-        if np.all((p_z > 0.10) & (p_z < 0.90)):
-            break
+    over (z, u); independent noise is absorbed by table randomness.
+
+    p_z_given (Phase 4 A1): use this exact context mass (shared across
+    mechanisms so that observable mixtures keep equal per-z weights and
+    stay feasible at the conditional level).
+    p_conc=None (default): interior-constrained p_z as in WP 2.2.
+    p_conc=c (Phase 4 boundary-stress / tail=t3 arm): p_z ~ Dirichlet(c)
+    with NO interior constraint (bursty context masses)."""
+    if p_z_given is not None:
+        p_z = np.asarray(p_z_given, float)
+    elif p_conc is None:
+        while True:
+            p_z = rng.dirichlet(np.ones(kz))
+            if np.all((p_z > 0.10) & (p_z < 0.90)):
+                break
+    else:
+        p_z = rng.dirichlet(np.ones(kz) * p_conc)
     if kind == "chain":
         f_z = _rand_mech(rng, kx, 1)
         g_x = _rand_mech(rng, ky, 1)
@@ -79,10 +91,11 @@ def sample_null_mechanism(rng, kz, kx, ky, kind):
     return samp, p_z
 
 
-def sample_rows_null(rng, n, kz, kx, ky, kind):
+def sample_rows_null(rng, n, kz, kx, ky, kind, p_conc=None, p_z_given=None):
     """Fresh IV-form null SCM per replication; returns rows (n,3), meta with
     the POPULATION conditional blocks (mechanisms evaluated exactly)."""
-    samp, p_z = sample_null_mechanism(rng, kz, kx, ky, kind)
+    samp, p_z = sample_null_mechanism(rng, kz, kx, ky, kind, p_conc=p_conc,
+                                      p_z_given=p_z_given)
     z = rng.choice(kz, size=n, p=p_z)
     u = rng.integers(0, 2, size=n)
     pairs = z * 2 + u
@@ -152,7 +165,12 @@ class MixtureCell:
     couplings are always feasible, so rho parametrizes distance outside
     the polytope (witness(e_rho) grows monotonically from 0)."""
 
-    def __init__(self, kz, kx, ky, alt_seed=20260825, min_witness=0.05):
+    def __init__(self, kz, kx, ky, alt_seed=20260825, min_witness=0.05,
+                 anchor_conc=1.0):
+        """anchor_conc: Dirichlet concentration of the product-form anchor
+        (e_0). Default 1.0 = WP 2.3 behavior; anchor_conc < 1 (Phase 4
+        tail=t3 arm) yields near-vertex product anchors, i.e. boundary-
+        stress alternatives that remain EXACTLY feasible at rho=0."""
         self.kz, self.kx, self.ky = kz, kx, ky
         self.M = build_iv_A_general(kz, kx, ky)
         Mf = self.M.astype(float)
@@ -165,8 +183,8 @@ class MixtureCell:
         K = kz * blk
 
         # ---- feasible anchor e_0: product-form coupling pushforward
-        mu = rng.dirichlet(np.ones(nt_x))
-        nu = rng.dirichlet(np.ones(nt_y))
+        mu = rng.dirichlet(np.ones(nt_x) * anchor_conc)
+        nu = rng.dirichlet(np.ones(nt_y) * anchor_conc)
         q0 = np.zeros(self.M.shape[1])
         for ix in range(nt_x):
             for iy in range(nt_y):

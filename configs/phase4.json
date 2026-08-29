@@ -1,0 +1,107 @@
+{
+  "phase": 4,
+  "title": "Full falsification ladder at scale (Plan Section 5, PHASE 4)",
+  "committed_before_runs": true,
+  "predeclared_deviations": {
+    "D-P4.1": "Discrete 'tail in {none, t3}' has no literal heavy-tail analogue on discrete data; predeclared interpretation: tail=t3 means the BOUNDARY-STRESS arm (bursty context masses p_z ~ Dirichlet(0.3) for nulls; near-vertex product anchors via Dirichlet(0.3) couplings for the mixture family), matching the Gate B lesson that boundary laws decide calibration quality.",
+    "D-P4.2": "Continuous-grid alternative cells are a strict superset subset relation: WP 3.3 (Gate C, 486k verified rows, code 207fea8) already covers d {2,3,5} x n {2000,20000} x b {0.2,0.4,0.6,0.8} subset x noise {gauss,t3} x kinds at 200 seeds under the frozen v3 pipeline. Phase 4 therefore (a) REUSES verified WP 3.3 raw rows for those cells, (b) runs only the missing n=8000 alternative cells, and (c) adds the missing n=20000 matched null calibration (WP 3.2 stopped at n=8000) so no conservative CV transfer is needed anywhere in the grid.",
+    "D-P4.3": "Discrete cells pinned to (kz,kx)=(2,2) with k_Y in {4,5,8} per the plan's k_Y grid; (2,2) is the regime the WP 2.4 pain map identified and keeps the calibrated-LP baseline cheap enough to be a fair (non-timeout) comparator.",
+    "D-P4.4": "Subsampling engine excluded from Phase 4 discrete arms (Gate B finding F-c: invalid for these functionals). Engines: para_boot, crt_cond only.",
+    "D-P4.5": "Compute offload per the binding 2h/4GB rule after local pilots: discrete blocks (~0.1-0.2 s/seed measured) and continuous alt/adversarial blocks run LOCALLY; only the 12 n=20000 continuous null groups (~50-60 min/group measured extrapolation) offload to Colab as 4 shards. The plan's 40-shard budget is an upper bound, not a quota.",
+    "D-P4.6": "Real-data smoke uses the wooldridge bundle (card, mroz, jtrain 1988 cross-section) plus a card placebo (permuted instrument) as the fourth analysis; jtrain grant randomization is the RCT-derived negative control.",
+    "D-P4.7": "Real-data discrete rows use OWN parametric-bootstrap CVs (fit null q on observed conditionals, B=199) instead of envelope transfer: the (2,2,2) RCT cell has no Phase 4 null arm and the real-data context masses are data-driven, so self-calibration is the honest smoke-level choice.",
+    "D-P4.8": "Defect D13 (discovered by the Phase 4 scaling/n=8000 pilots, confirmed by aligned-subset diagnostic + bit-identical regression at n=2000): K1Witness computed the mean embeddings b_c over up to m_cap=600 residuals but self_mmd_const over the first 400, an internally inconsistent objective whenever a stratum exceeds 600 rows (n >= 4000 at K=8). Effect: null right-tail inflation (q95 ~0.005 -> ~0.04 from n=2000 to n=8000) and power collapse (0.93 -> 0.205) in the frozen pipeline; the aligned fix (m_cap=400) restores power ~1.00 at n in {8000, 20000} under conf_nonlin/t3 and is a bit-identical no-op for every stratum <= 400, i.e. for all Gate C verdict-relevant cells (n in {500, 2000}; regression diff <= 2.5e-16). Consequence: Phase 4 continuous cells at n in {8000, 20000} (nulls AND alternatives) run under the fixed code; Gate C verdicts and their data stand unchanged; pre-D13 Phase 4 raw rows moved to results/raw/superseded/phase4_preD13/.",
+    "D-P4.9": "L4 remedy ADOPTED (v4 continuous variant): the predeclared adversarial config B4 (heavy curvature, in-class ANM) fired at 0.60 (k1) / 0.35 (k2) under the linear detrend, exposing the linear-detrend surrogate's scope boundary. The 100-seed detrend ablation (src/run_p4_detrend_ablation.py, results/raw/phase4/p4detrend_*) shows the per-context QUADRATIC detrend fixes k1's B4 FPR to 0.01 with zero cost elsewhere (B1-B3 0.00; all null sizes <= 0.02 across n {2000,8000,20000}, both noise families; conf_nonlin/t3 power 0.92-0.99 unchanged) — while real-data curvature (card rho=0.10, mroz rho=0.18) sits far below the B4 regime (rho=0.49). v4 = D13-aligned caps + quadratic detrend; the full continuous arm (nulls AND alternatives at n {2000,8000,20000}) re-runs under v4, superseding the linear-detrend Phase 4 rows (moved to results/raw/superseded/phase4_linear_detrend/). WP3.3 reuse is retired: under v4 no continuous cell is bit-identical to Gate C data (Gate C verdicts stand as history; the paper reports v4 numbers). k2 remains secondary with declared limitations (B4 0.12, t3 sizes 0.10-0.16)."
+  },
+  "discrete_grid": {
+    "note": "Block A. Witness family vs strongest applicable baseline (calibrated LP test) at matched size, boundary-sampled per Gate B consequence 4.",
+    "cells": [[2, 2, 4], [2, 2, 5], [2, 2, 8]],
+    "n_grid": [500, 1000, 2000],
+    "rho_grid": [0.2, 0.4, 0.6, 0.8],
+    "tails": ["none", "t3"],
+    "null_kinds": ["chain", "u_on_x", "u_on_y"],
+    "stats": ["kl_plugin", "kl_split", "kl_crossfit", "cf1_margin", "slack_plugin", "gm_battery", "gtest"],
+    "engines": ["para_boot", "crt_cond"],
+    "reps": 200,
+    "boot_subset_random": 24,
+    "B": 99,
+    "B_lp": {"2-2-4": 99, "2-2-5": 49, "2-2-8": 29},
+    "alt_family": "mixture",
+    "tail_none_def": "MixtureCell defaults (Dirichlet(1) product anchors, alt_seed 20260825); null p_z interior-constrained as in WP 2.2.",
+    "tail_t3_def": "MixtureCell(anchor_conc=0.3, alt_seed=20260826) near-vertex anchors; null p_z ~ Dirichlet(0.3) bursty contexts.",
+    "cv_rule": "Envelope CVs per (cell, n, tail, stat, engine): max over null kinds of mean own-draw CV (Gate B D6 envelope rule); alt and adversarial decisions use envelopes."
+  },
+  "continuous_grid": {
+    "note": "Block B. WP3.3 reuse (D-P4.2) + new n=8000 alt cells + new n=20000 nulls.",
+    "cells_d": [2, 3, 5],
+    "n_grid": [2000, 8000, 20000],
+    "b_grid": [0.2, 0.4, 0.6, 0.8],
+    "noise": ["gauss", "t3"],
+    "alt_kinds": ["conf_lin", "conf_nonlin"],
+    "null_kinds": ["null_gauss", "null_nonparam"],
+    "reps": 200,
+    "B_null": 199,
+    "methods": ["k1", "k2", "hsic"],
+    "trim_primary": 0.05,
+    "hsic_cap": 800,
+    "seeds_null": [400000, 400200],
+    "seeds_alt": [500000, 500200],
+    "trim_policy": "identical to run_wp32_calibration: gauss nulls trims (0, 0.01, 0.05) with bmap {0: 49, 0.01: 49, 0.05: 199}; t3 nulls trim 0.05 at full B; alt rows point stats at trim 0.05 (k1/k2) and hsic."
+  },
+  "adversarial_nulls": {
+    "note": "Block C. 8 configs x 200 reps; FPR gate for Gate D is <= 0.10 at alpha 0.05.",
+    "reps": 200,
+    "seeds": [900000, 900200],
+    "discrete": [
+      {"id": "A1_two_null_mixture", "cell": [2, 2, 5], "n": 2000, "tail_env": "none",
+       "def": "Observable 50/50 mixture of two fresh chain-SCM laws (convex combination of feasible points, hence feasible; strongest adversarial null for LP and witness alike)."},
+      {"id": "A2_det_nonlinear_chain", "cell": [2, 2, 5], "n": 2000, "tail_env": "none",
+       "def": "Deterministic nonlinear chain: x=(z+1) mod kx, y=(3x^2+2z+1) mod ky, uniform p_z (anchor_deterministic analogue with nonlinear mechanism)."},
+      {"id": "A3_bursty_u_on_y", "cell": [2, 2, 4], "n": 2000, "tail_env": "t3",
+       "def": "u_on_y null SCM with p_z ~ Dirichlet(0.3) (context-imbalance stress; judged against tail=t3 envelopes)."},
+      {"id": "A4_feasible_contamination", "cell": [2, 2, 5], "n": 2000, "tail_env": "none",
+       "def": "chain null with 2% uniform (x,y) corruption; population feasibility verified by order-2-equivalent LP per replication and rows classified as in WP 2.2."}
+    ],
+    "continuous": [
+      {"id": "B1_selection_trunc", "n": 5000, "d": 2, "noise": "gauss",
+       "def": "null_gauss DGP; rows kept iff |x| <= Q(|x|, 0.8) (selection-induced support truncation; x-marginal distorted, ANM class intact)."},
+      {"id": "B2_mixture_x", "n": 5000, "d": 2, "noise": "t3",
+       "def": "X ~ 0.5 N(-2,1) + 0.5 N(2,1); y = 0.8 tanh(x) + eps (bimodal design, shared-shape ANM intact)."},
+      {"id": "B3_clipped_noise", "n": 5000, "d": 2, "noise": "t3",
+       "def": "null_nonparam with the NOISE clipped at its own 10/90 percentiles before entry (y = m(x) + clip(eps): atoms in residuals, shared-shape class intact)."},
+      {"id": "B4_heavy_curvature", "n": 5000, "d": 2, "noise": "t3",
+       "def": "y = 2.5 sin(1.3 x) + 0.15 x^2 + eps (deterministic heavy-curvature mechanism, shared-shape ANM intact)."}
+    ],
+    "continuous_calibration": "Per-dataset: k1_k2_perm_calibration B=99 trim 0.05; hsic pairs-bootstrap B=99. No pooled transfer (self-calibrated)."
+  },
+  "scaling": {
+    "note": "Block D. Runtime/memory vs (n, k) for witnesses and all baselines.",
+    "discrete": {"cells": [[2, 2, 4], [2, 2, 5], [2, 2, 8]], "n_grid": [500, 2000, 8000], "reps": 20},
+    "continuous": {"n_grid": [2000, 5000, 10000, 20000, 50000], "d": 2, "reps": 10, "methods": ["k1_v3", "k2_v3", "hsic_resid"]}
+  },
+  "realdata_smoke": {
+    "note": "Block E. Read-only feasibility demonstration (Plan Section 4: real-data work is smoke level before Gate D).",
+    "source": "wooldridge python bundle (pinned >=1.0)",
+    "analyses": [
+      {"id": "R1_card", "dataset": "card", "z": "nearc4", "x": "educ", "y": "lwage",
+       "continuous": "k1/k2 perm calibration on (educ, lwage); hsic baseline",
+       "discrete": "educ quartile bins -> cell (2,2,4) n=3010; envelope CVs from p4dnull (2-2-4) nearest-n conservative"},
+      {"id": "R2_mroz", "dataset": "mroz", "z": "motheduc", "x": "educ", "y": "lwage",
+       "continuous": "as R1 on the in-lf subsample (n=428)",
+       "discrete": "educ quartile bins -> cell (2,2,4); same CV rule"},
+      {"id": "R3_jtrain_rct", "dataset": "jtrain", "year": 1988, "z": "grant", "x": "train", "y": "scrap",
+       "continuous": null,
+       "discrete": "RCT-derived negative control: randomized grant; binary cell (2,2,2)-style analysis with ky=2 (scrap dichotomized); expect NO rejection"},
+      {"id": "R4_card_placebo", "dataset": "card", "z": "nearc4_permuted", "x": "educ", "y": "lwage",
+       "continuous": "instrument rows permuted: destroys relevance, restores feasibility; expect NO rejection (smoke-level FPR quantification)",
+       "discrete": "same binning as R1"}
+    ]
+  },
+  "gate_D_rules": {
+    "GO": "At least one arm (discrete or continuous) exhibits size-controlled power advantage >= 0.20 absolute over the strongest applicable baseline across a contiguous region covering >= 20 percent of that arm's grid, explained by the mechanism ablation, with adversarial false-positive rate <= 10 percent.",
+    "contiguity": "Within each (kind, noise, d, n) panel, contiguous along the b (continuous) or rho (discrete) axis; a panel counts if >= 3 of 4 strength cells have advantage >= 0.20 with witness null size <= 2*alpha; region share = qualifying cells / arm grid cells.",
+    "PIVOT": "Advantage real but confined to a narrower declarable regime; scope the paper to it.",
+    "INCREMENTAL_ONLY": "Wins below thresholds or fragile; consult user; default terminate.",
+    "KILL": "No regime with size control + meaningful advantage; adversarial FPR > 0.15 after all fixes; or scaling infeasibility."
+  }
+}

@@ -1,0 +1,4 @@
+arm,method,baseline,adv_threshold,share_ge_020,region_share,qualifying_cells,grid_cells,monotone_all_panels,adversarial_fpr,adversarial_fpr_in_class,adversarial_fpr_by_config,gateD_go_input
+continuous,k1,hsic,0.2,True,0.25,36,144,True,0.02,0.0,"{""B1_selection_trunc"": 0.0, ""B2_mixture_x"": 0.0, ""B3_clipped_noise"": 0.0, ""B4_heavy_curvature"": 0.02}",True
+continuous,k2,hsic,0.2,False,0.08333333333333333,12,144,True,0.15,0.115,"{""B1_selection_trunc"": 0.01, ""B2_mixture_x"": 0.115, ""B3_clipped_noise"": 0.0, ""B4_heavy_curvature"": 0.15}",False
+discrete,kl_family(best_size_eligible),calibrated_LP(cf1/slack best),0.2,False,0.0,0,72,,0.0,,,False

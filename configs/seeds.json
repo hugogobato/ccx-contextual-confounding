@@ -173,5 +173,41 @@
     },
     "lp_time_cap_s": 600,
     "wp32_seeds": 100
+  },
+  "phase4": {
+    "note": "Full falsification ladder. Null streams 700k (discrete) / 400k (continuous n=20000, same stream as WP3.2); alternative streams 800k (discrete) / 500k (continuous, same stream as WP3.3); adversarial 900k. Bootstrap draw seeds derive as dataset_seed * 1000 + offset (mod 2^31).",
+    "discrete_null_seeds": {
+      "start": 700000,
+      "count": 200
+    },
+    "discrete_alt_seeds": {
+      "start": 800000,
+      "count": 200
+    },
+    "adversarial_seeds": {
+      "start": 900000,
+      "count": 200
+    },
+    "continuous_null_seeds": {
+      "start": 400000,
+      "count": 200
+    },
+    "continuous_alt_seeds": {
+      "start": 500000,
+      "count": 200
+    },
+    "bootstrap_B": 99,
+    "bootstrap_seed_offset": 7919,
+    "engine_offset": {
+      "para_boot": 1,
+      "crt_cond": 2
+    },
+    "perm_calibration_B": 99,
+    "adversarial_perm_B": 99,
+    "B_lp_cells": {
+      "2-2-4": 99,
+      "2-2-5": 49,
+      "2-2-8": 29
+    }
   }
 }

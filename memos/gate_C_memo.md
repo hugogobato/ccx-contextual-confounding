@@ -134,3 +134,20 @@ declared-limitation regime L2; (iii) the conf_lin heavy-tail families
 show genuine witness signal (k1 max power 0.76) that the predeclared
 baseline condition discounts because the baseline also detects it;
 this is a scope statement, not a defect.
+
+## Post-gate addendum (D13, found during Phase 4)
+
+D13 (implementation defect, Phase 4 discovery): K1Witness computed the
+per-context mean embeddings b_c over up to m_cap = 600 residuals while
+self_mmd_const used the first 400 — an internally inconsistent QP
+objective active only when a stratum exceeds 600 rows (n >= 4000 at
+K = 8). Symptom: the null right tail inflates with n (q95 ~0.005 at
+n = 2000 vs ~0.04-0.05 at n >= 8000) and k1 power on conf_nonlin/t3
+collapses (0.93 at n = 2000 -> 0.205 at n = 8000) — this explains both
+the unremarked power drop in the n >= 10^4 columns of
+separation_study.csv and the NaN-size n = 5000 row. Repair (m_cap
+aligned to 400) is a bit-identical no-op for all verdict-relevant cells
+(strata <= 400; regression vs stored wp33 rows <= 2.5e-16) and restores
+power ~1.00 at n in {8000, 20000} (aligned-subset diagnostic, 15 seeds,
+conf_nonlin/t3). Gate C's verdict is unaffected; Phase 4 runs n >= 4000
+cells under the fixed code. Full details: configs/phase4.json D-P4.8.

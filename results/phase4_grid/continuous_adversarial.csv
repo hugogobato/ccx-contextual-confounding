@@ -1,0 +1,13 @@
+adv_id,n,d,noise,method,fpr,n_reps
+B1_selection_trunc,5000,2,gauss,hsic,0.0,200
+B1_selection_trunc,5000,2,gauss,k1,0.0,200
+B1_selection_trunc,5000,2,gauss,k2,0.01,200
+B2_mixture_x,5000,2,t3,hsic,0.0,200
+B2_mixture_x,5000,2,t3,k1,0.0,200
+B2_mixture_x,5000,2,t3,k2,0.115,200
+B3_clipped_noise,5000,2,t3,hsic,0.0,200
+B3_clipped_noise,5000,2,t3,k1,0.0,200
+B3_clipped_noise,5000,2,t3,k2,0.0,200
+B4_heavy_curvature,5000,2,t3,hsic,0.0,200
+B4_heavy_curvature,5000,2,t3,k1,0.02,200
+B4_heavy_curvature,5000,2,t3,k2,0.15,200

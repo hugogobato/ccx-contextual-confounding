@@ -1,0 +1,85 @@
+=== stage 1: p4cadv (fixed code) Sat Aug 29 00:22:35 -03 2026
+[p4cadv] groups: 4
+[p4cadv] 1/4 rows=600 | 1233s
+[p4cadv] 2/4 rows=600 | 1235s
+[p4cadv] 3/4 rows=600 | 1240s
+[p4cadv] 4/4 rows=600 | 1242s
+driver complete
+=== stage 2: p4cnull full local Sat Aug 29 00:43:19 -03 2026
+[p4cnull] groups: 24
+[p4cnull] 1/24 rows=600 | 2750s
+[p4cnull] 2/24 rows=600 | 2754s
+[p4cnull] 3/24 rows=1400 | 3686s
+[p4cnull] 4/24 rows=1400 | 3693s
+[p4cnull] 5/24 rows=1400 | 3721s
+[p4cnull] 6/24 rows=1400 | 3763s
+[p4cnull] 7/24 rows=600 | 5465s
+[p4cnull] 8/24 rows=600 | 5471s
+[p4cnull] 9/24 rows=600 | 6408s
+[p4cnull] 10/24 rows=600 | 6465s
+[p4cnull] 11/24 rows=1400 | 7207s
+[p4cnull] 12/24 rows=1400 | 7238s
+[p4cnull] 13/24 rows=600 | 10626s
+[p4cnull] 14/24 rows=600 | 10686s
+[p4cnull] 15/24 rows=1400 | 11415s
+[p4cnull] 16/24 rows=1400 | 11421s
+[p4cnull] 17/24 rows=1400 | 13106s
+[p4cnull] 18/24 rows=1400 | 13136s
+[p4cnull] 19/24 rows=600 | 14876s
+[p4cnull] 20/24 rows=600 | 14938s
+[p4cnull] 21/24 rows=600 | 17004s
+[p4cnull] 22/24 rows=600 | 17036s
+[p4cnull] 23/24 rows=1400 | 17073s
+[p4cnull] 24/24 rows=1400 | 17074s
+driver complete
+=== stage 3: p4realdata re-run (D13 affects card/mroz strata > 400) Sat Aug 29 05:27:54 -03 2026
+wrote 37 rows -> /home/hugo_souto/Stuff/Research/Sheaf_Ideas/Idea2/Contextual_Confounding/results/raw/phase4/p4realdata.csv
+       analysis       method     stat_obs
+        R1_card    kl_plugin 0.000000e+00
+        R1_card     kl_split 1.816748e-02
+        R1_card  kl_crossfit 1.801706e-02
+        R1_card   cf1_margin 0.000000e+00
+        R1_card slack_plugin 0.000000e+00
+        R1_card   gm_battery 0.000000e+00
+        R1_card        gtest 1.218570e+02
+        R1_card           k1 5.283703e-03
+        R1_card           k2 1.285754e-01
+        R1_card         hsic 7.407287e-04
+R4_card_placebo    kl_plugin 0.000000e+00
+R4_card_placebo     kl_split 3.141055e-02
+R4_card_placebo  kl_crossfit 3.011646e-02
+R4_card_placebo   cf1_margin 0.000000e+00
+R4_card_placebo slack_plugin 0.000000e+00
+R4_card_placebo   gm_battery 0.000000e+00
+R4_card_placebo        gtest 1.218570e+02
+R4_card_placebo           k1 3.849858e-03
+R4_card_placebo           k2 6.913015e-02
+R4_card_placebo         hsic 1.254072e-03
+        R2_mroz    kl_plugin 3.456355e-17
+        R2_mroz     kl_split 9.131163e+01
+        R2_mroz  kl_crossfit 9.280500e+01
+        R2_mroz   cf1_margin 0.000000e+00
+        R2_mroz slack_plugin 0.000000e+00
+        R2_mroz   gm_battery 0.000000e+00
+        R2_mroz        gtest 2.809287e+01
+        R2_mroz           k1 1.790359e-03
+        R2_mroz           k2 6.387397e-02
+        R2_mroz         hsic 9.694391e-04
+  R3_jtrain_rct    kl_plugin 5.314658e-17
+  R3_jtrain_rct     kl_split 2.756588e+01
+  R3_jtrain_rct  kl_crossfit 1.411400e+01
+  R3_jtrain_rct   cf1_margin 1.110223e-16
+  R3_jtrain_rct slack_plugin 0.000000e+00
+  R3_jtrain_rct   gm_battery 1.110223e-16
+  R3_jtrain_rct        gtest 5.138786e-01
+=== stage 4: aggregate + Gate D Sat Aug 29 05:28:08 -03 2026
+       arm                        method                      baseline  adv_threshold  share_ge_020  region_share  qualifying_cells  grid_cells monotone_all_panels  adversarial_fpr  gateD_go_input
+continuous                            k1                          hsic            0.2          True          0.25                36         144                True          0.14125           False
+continuous                            k2                          hsic            0.2         False          0.00                 0         144                True          0.11625           False
+  discrete kl_family(best_size_eligible) calibrated_LP(cf1/slack best)            0.2         False          0.00                 0          72                                  NaN           False
+=== stage 5: figures Sat Aug 29 05:28:15 -03 2026
+cont_power_panels done
+discrete_power_panels done
+adversarial_fpr done
+scaling_phase4 done
+=== OVERNIGHT COMPLETE Sat Aug 29 05:28:17 -03 2026
